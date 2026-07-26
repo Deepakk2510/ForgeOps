@@ -222,5 +222,54 @@ class GitHubService:
             "commits": commits[:5],
             "readme": readme_content[:3000]
         }
+
+    async def get_repository_tree(self, repo_name: str):
+
+        headers = {
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "Accept": "application/vnd.github+json"
+        }
+
+        async with httpx.AsyncClient() as client:
+
+            branch = await self.get_repository(repo_name)
+
+            response = await client.get(
+                f"https://api.github.com/repos/Deepakk2510/{repo_name}/git/trees/{branch['default_branch']}?recursive=1",
+                headers=headers
+            )
+
+            response.raise_for_status()
+
+            return response.json()["tree"]
+
+    async def get_file_content(
+        self,
+        repo_name: str,
+        path: str
+    ):
+
+        headers = {
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "Accept": "application/vnd.github+json"
+        }
+
+        async with httpx.AsyncClient() as client:
+
+            response = await client.get(
+                f"https://api.github.com/repos/Deepakk2510/{repo_name}/contents/{path}",
+                headers=headers
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+            return base64.b64decode(
+                data["content"]
+            ).decode(
+                "utf-8",
+                errors="ignore"
+            )
     
 github_service = GitHubService()

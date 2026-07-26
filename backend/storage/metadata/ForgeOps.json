@@ -1,0 +1,62 @@
+[
+  {
+    "path": "backend/app/api/auth.py",
+    "content": "from fastapi import APIRouter, Depends\nfrom sqlalchemy.orm import Session\n\nfrom app.database.db import get_db\nfrom app.models.user import User\nfrom app.schemas.user import UserCreate, UserResponse\nfrom app.utils.security import hash_password\n\nfrom fastapi import HTTPException\nfrom app.schemas.user import Token\nfrom fastapi.security import OAuth2PasswordRequestForm\nfrom app.utils.security import verify_password\nfrom app.utils.jwt import create_access_token\n\nfrom fastapi.security import OAuth2PasswordRequestForm\n\n\nrouter = APIRouter()\n\n\n@router.post(\"/register\", response_model=UserResponse)\ndef register(user: UserCreate, db: Session = Depends(get_db)):\n\n    print(user.password)\n    print(type(user.password))\n\n    db_user = User(\n        username=user.username,\n        email=user.email,\n     "
+  },
+  {
+    "path": "backend/app/api/auth.py",
+    "content": "et_db)):\n\n    print(user.password)\n    print(type(user.password))\n\n    db_user = User(\n        username=user.username,\n        email=user.email,\n        password=hash_password(user.password)\n    )\n\n    db.add(db_user)\n    db.commit()\n    db.refresh(db_user)\n\n    return db_user\n\n@router.post(\"/login\", response_model=Token)\ndef login(\n    form_data: OAuth2PasswordRequestForm = Depends(),\n    db: Session = Depends(get_db)\n):\n\n    # print(\"Username received:\", form_data.username)\n    # print(\"Password received:\", form_data.password)\n\n    db_user = db.query(User).filter(\n        User.email == form_data.username\n    ).first()\n\n    # print(\"DB User:\", db_user)\n\n    if db_user is None:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid email or password\"\n        "
+  },
+  {
+    "path": "backend/app/api/auth.py",
+    "content": "\", db_user)\n\n    if db_user is None:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid email or password\"\n        )\n\n    # print(\"Stored Hash:\", db_user.password)\n    # print(\"Password Match:\", verify_password(form_data.password, db_user.password))\n\n    if not verify_password(form_data.password, db_user.password):\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid email or password\"\n        )\n\n    token = create_access_token(\n        {\"sub\": db_user.email}\n    )\n\n    return {\n        \"access_token\": token,\n        \"token_type\": \"bearer\"\n    }"
+  },
+  {
+    "path": "backend/app/api/health.py",
+    "content": "from fastapi import APIRouter\n\nrouter = APIRouter()\n\n\n@router.get(\"/\")\ndef health():\n    return {\n        \"status\": \"healthy\",\n        \"message\": \"ForgeOps Backend Running 🚀\"\n    }"
+  },
+  {
+    "path": "backend/app/api/user.py",
+    "content": "from fastapi import APIRouter, Depends\n\nfrom app.models.user import User\nfrom app.utils.jwt import get_current_user\n\nrouter = APIRouter(\n    prefix=\"/user\",\n    tags=[\"User\"]\n)\n\n\n@router.get(\"/me\")\ndef get_me(\n    current_user: User = Depends(get_current_user)\n):\n    return {\n        \"id\": current_user.id,\n        \"username\": current_user.username,\n        \"email\": current_user.email\n    }"
+  },
+  {
+    "path": "backend/app/core/config.py",
+    "content": "from pydantic_settings import BaseSettings\n\n\nclass Settings(BaseSettings):\n    APP_NAME: str\n    APP_VERSION: str\n\n    HOST: str\n    PORT: int\n\n    DATABASE_URL: str\n\n    SECRET_KEY: str\n\n    ALGORITHM: str\n\n    ACCESS_TOKEN_EXPIRE_MINUTES: int\n\n    OPENAI_API_KEY: str = \"\"\n    GEMINI_API_KEY: str = \"\"\n\n    class Config:\n        env_file = \".env\"\n\n\nsettings = Settings()"
+  },
+  {
+    "path": "backend/app/database/db.py",
+    "content": "from sqlalchemy import create_engine\nfrom sqlalchemy.orm import sessionmaker, declarative_base\n\nfrom app.core.config import settings\n\nengine = create_engine(\n    settings.DATABASE_URL,\n    connect_args={\"check_same_thread\": False}\n)\n\nSessionLocal = sessionmaker(\n    autocommit=False,\n    autoflush=False,\n    bind=engine\n)\n\nBase = declarative_base()\n\ndef get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()"
+  },
+  {
+    "path": "backend/app/main.py",
+    "content": "from fastapi import FastAPI\n\nfrom app.database.db import Base, engine\n\nfrom app.models import user\nfrom app.models import photo\n\nfrom app.api.health import router as health_router\nfrom app.api.auth import router as auth_router\nfrom app.api.user import router as user_router  \n\nfrom app.core.config import settings\n\nBase.metadata.create_all(bind=engine)\n\napp = FastAPI(\n    title=settings.APP_NAME,\n    version=settings.APP_VERSION\n)\n\napp.include_router(\n    health_router,\n    prefix=\"/health\",\n    tags=[\"Health\"]\n)\n\napp.include_router(\n    auth_router,\n    prefix=\"/auth\",\n    tags=[\"Authentication\"]\n)\n\napp.include_router(\n    user_router\n)"
+  },
+  {
+    "path": "backend/app/models/photo.py",
+    "content": "from sqlalchemy import Column, Integer, String\n\nfrom app.database.db import Base\n\n\nclass Photo(Base):\n    __tablename__ = \"photos\"\n\n    id = Column(Integer, primary_key=True, index=True)\n\n    filename = Column(String)\n\n    filepath = Column(String)\n\n    description = Column(String)"
+  },
+  {
+    "path": "backend/app/models/user.py",
+    "content": "from sqlalchemy import Column, Integer, String\n\nfrom app.database.db import Base\n\n\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id = Column(Integer, primary_key=True, index=True)\n\n    username = Column(String, unique=True)\n\n    email = Column(String, unique=True)\n\n    password = Column(String)"
+  },
+  {
+    "path": "backend/app/schemas/user.py",
+    "content": "from pydantic import BaseModel, EmailStr\n\n\nclass UserCreate(BaseModel):\n    username: str\n    email: EmailStr\n    password: str\n\n\nclass UserResponse(BaseModel):\n    id: int\n    username: str\n    email: EmailStr\n\n    class Config:\n        from_attributes = True\n\nclass UserLogin(BaseModel):\n    email: EmailStr\n    password: str\n\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str"
+  },
+  {
+    "path": "backend/app/utils/jwt.py",
+    "content": "from datetime import datetime, timedelta\nfrom jose import jwt\n\nfrom app.core.config import settings\n\nfrom jose import JWTError, jwt\nfrom fastapi import Depends, HTTPException\nfrom fastapi.security import OAuth2PasswordBearer\n\nfrom sqlalchemy.orm import Session\n\nfrom app.database.db import get_db\nfrom app.models.user import User\n\noauth2_scheme = OAuth2PasswordBearer(\n    tokenUrl=\"/auth/login\"\n)\n\ndef create_access_token(data: dict):\n    to_encode = data.copy()\n\n    expire = datetime.utcnow() + timedelta(\n        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES\n    )\n\n    to_encode.update({\"exp\": expire})\n\n    encoded_jwt = jwt.encode(\n        to_encode,\n        settings.SECRET_KEY,\n        algorithm=settings.ALGORITHM\n    )\n\n    return encoded_jwt\n\ndef verify_access_token(token: str):\n    try:\n"
+  },
+  {
+    "path": "backend/app/utils/jwt.py",
+    "content": "ncode,\n        settings.SECRET_KEY,\n        algorithm=settings.ALGORITHM\n    )\n\n    return encoded_jwt\n\ndef verify_access_token(token: str):\n    try:\n        payload = jwt.decode(\n            token,\n            settings.SECRET_KEY,\n            algorithms=[settings.ALGORITHM]\n        )\n\n        return payload\n\n    except JWTError:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid or expired token\"\n        )\n\ndef get_current_user(\n    token: str = Depends(oauth2_scheme),\n    db: Session = Depends(get_db)\n):\n    payload = verify_access_token(token)\n\n    email = payload.get(\"sub\")\n\n    if email is None:\n        raise HTTPException(\n            status_code=401,\n            detail=\"Invalid token\"\n        )\n\n    user = db.query(User).filter(\n        User.email "
+  },
+  {
+    "path": "backend/app/utils/jwt.py",
+    "content": " raise HTTPException(\n            status_code=401,\n            detail=\"Invalid token\"\n        )\n\n    user = db.query(User).filter(\n        User.email == email\n    ).first()\n\n    if user is None:\n        raise HTTPException(\n            status_code=401,\n            detail=\"User not found\"\n        )\n\n    return user"
+  },
+  {
+    "path": "backend/app/utils/security.py",
+    "content": "from passlib.context import CryptContext\n\npwd_context = CryptContext(\n    schemes=[\"bcrypt\"],\n    deprecated=\"auto\"\n)\n\n\ndef hash_password(password: str):\n    return pwd_context.hash(password)\n\n\ndef verify_password(plain_password: str, hashed_password: str):\n    return pwd_context.verify(\n        plain_password,\n        hashed_password\n    )"
+  }
+]

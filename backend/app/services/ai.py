@@ -1,15 +1,14 @@
+import json
 from pathlib import Path
 
 from openai import OpenAI
 
 from app.core.config import settings
-import json
-import re
+
 
 class AIService:
 
     def __init__(self):
-
         self.client = OpenAI(
             api_key=settings.GROQ_API_KEY,
             base_url="https://api.groq.com/openai/v1"
@@ -42,6 +41,51 @@ class AIService:
             encoding="utf-8"
         )
 
+    def parse_json_response(self, response: str):
+
+        response = response.strip()
+
+        response = response.replace("```json", "")
+        response = response.replace("```", "")
+        response = response.strip()
+
+        print("=" * 50)
+        print("LLM RESPONSE")
+        print("=" * 50)
+        print(response)
+        print("=" * 50)
+
+        return json.loads(response)
+
+    async def generate_json(
+        self,
+        prompt_file: str,
+        context: dict
+    ):
+
+        prompt = self.load_prompt(prompt_file)
+
+        prompt = prompt.format(**context)
+
+        last_exception = None
+
+        for _ in range(2):
+
+            try:
+
+                response = await self.generate(prompt)
+
+                return self.parse_json_response(response)
+
+            except Exception as e:
+                last_exception = e
+
+        raise last_exception
+
+    # --------------------------------------------------
+    # Text Generation
+    # --------------------------------------------------
+
     async def repository_summary(
         self,
         context: dict
@@ -60,9 +104,14 @@ class AIService:
 
         return await self.generate(prompt)
 
-    async def explain_health_score(self, analysis: dict):
+    async def explain_health_score(
+        self,
+        analysis: dict
+    ):
 
-        prompt = self.load_prompt("health_score.txt")
+        prompt = self.load_prompt(
+            "health_score.txt"
+        )
 
         prompt = prompt.format(
             score=analysis["score"],
@@ -72,105 +121,71 @@ class AIService:
 
         return await self.generate(prompt)
 
-    async def review_readme(self, readme: str):
+    # --------------------------------------------------
+    # JSON Generation
+    # --------------------------------------------------
 
-        prompt = self.load_prompt(
-            "readme_review.txt"
+    async def review_readme(
+        self,
+        readme: str
+    ):
+
+        return await self.generate_json(
+            "readme_review.txt",
+            {
+                "readme": readme
+            }
         )
 
-        prompt = prompt.format(
-            readme=readme
+    async def generate_resume(
+        self,
+        context: dict
+    ):
+
+        return await self.generate_json(
+            "resume_generator.txt",
+            context
         )
 
-        response = await self.generate(
-            prompt
+    async def generate_portfolio(
+        self,
+        context: dict
+    ):
+
+        return await self.generate_json(
+            "portfolio_generator.txt",
+            {
+                "repository": context["repository"],
+                "languages": context["languages"],
+                "readme": context["readme"]
+            }
         )
 
-        return self.parse_json_response(response)
+    async def generate_release_notes(
+        self,
+        context: dict
+    ):
 
-    async def generate_resume(self, context: dict):
-
-        prompt = self.load_prompt(
-            "resume_generator.txt"
+        return await self.generate_json(
+            "release_notes.txt",
+            {
+                "commits": context["commits"]
+            }
         )
 
-        prompt = prompt.format(
-            repository=context["repository"],
-            languages=context["languages"],
-            commits=context["commits"],
-            readme=context["readme"]
+    async def analyze_tech_stack(
+        self,
+        context: dict
+    ):
+
+        return await self.generate_json(
+            "tech_stack_analysis.txt",
+            {
+                "repository": context["repository"],
+                "languages": context["languages"],
+                "readme": context["readme"]
+            }
         )
 
-        response = await self.generate(prompt)
 
-        return self.parse_json_response(response)
-
-    async def generate_portfolio(self, context: dict):
-
-        prompt = self.load_prompt(
-            "portfolio_generator.txt"
-        )
-
-        prompt = prompt.format(
-            repository=context["repository"],
-            languages=context["languages"],
-            readme=context["readme"]
-        )
-
-        response = await self.generate(prompt)
-
-        return self.parse_json_response(response)
-
-    async def generate_release_notes(self, context: dict):
-
-        prompt = self.load_prompt(
-            "release_notes.txt"
-        )
-
-        prompt = prompt.format(
-            commits=context["commits"]
-        )
-
-        response = await self.generate(prompt)
-
-        return self.parse_json_response(response)
-
-
-    async def analyze_tech_stack(self, context: dict):
-
-        prompt = self.load_prompt(
-            "tech_stack_analysis.txt"
-        )
-
-        prompt = prompt.format(
-            repository=context["repository"],
-            languages=context["languages"],
-            readme=context["readme"]
-        )
-
-        response = await self.generate(prompt)
-
-        return self.parse_json_response(response)
-
-    def parse_json_response(self, response: str):
-
-        try:
-            response = response.strip()
-
-            # Remove markdown code fences
-            response = response.replace("```json", "")
-            response = response.replace("```", "")
-            response = response.strip()
-
-            print("=" * 50)
-            print(response)
-            print("=" * 50)
-
-            return json.loads(response)
-
-        except Exception as e:
-            print("JSON Parsing Failed!")
-            print(response)
-            raise e
-    
 ai_service = AIService()

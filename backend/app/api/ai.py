@@ -34,6 +34,17 @@ from app.schemas.productivity import (
 
 from app.services.health import health_analyzer
 
+from app.services.rag.file_loader import file_loader
+from app.services.rag.chunker import chunker
+from app.services.rag.indexer import repository_indexer
+
+from app.schemas.chat import (
+    ChatRequest,
+    ChatResponse
+)
+
+from app.services.rag.chat import repository_chat
+
 router = APIRouter(
     prefix="/ai",
     tags=["AI"]
@@ -175,4 +186,41 @@ async def tech_stack_analysis(
 
     return await ai_service.analyze_tech_stack(
         context
+    )
+
+@router.post("/index/{repo_name}")
+async def index_repository(
+    repo_name: str
+):
+
+    files = await file_loader.load_repository(
+        repo_name
+    )
+
+    chunks = chunker.chunk(
+        files
+    )
+
+    repository_indexer.build(
+        repo_name,
+        chunks
+    )
+
+    return {
+        "files": len(files),
+        "chunks": len(chunks),
+        "message": "Repository indexed successfully."
+    }
+
+@router.post(
+    "/chat",
+    response_model=ChatResponse
+)
+async def chat(
+    request: ChatRequest
+):
+
+    return await repository_chat.ask(
+        request.repo_name,
+        request.question
     )

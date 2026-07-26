@@ -1,0 +1,166 @@
+[
+  {
+    "path": "README.md",
+    "content": "# React + Vite\n\nThis template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.\n\nCurrently, two official plugins are available:\n\n- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)\n- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)\n\n## React Compiler\n\nThe React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).\n\n## Expanding the ESLint configuration\n\nIf you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Ch"
+  },
+  {
+    "path": "README.md",
+    "content": "panding the ESLint configuration\n\nIf you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.\n"
+  },
+  {
+    "path": "eslint.config.js",
+    "content": "import js from '@eslint/js'\nimport globals from 'globals'\nimport reactHooks from 'eslint-plugin-react-hooks'\nimport reactRefresh from 'eslint-plugin-react-refresh'\nimport { defineConfig, globalIgnores } from 'eslint/config'\n\nexport default defineConfig([\n  globalIgnores(['dist']),\n  {\n    files: ['**/*.{js,jsx}'],\n    extends: [\n      js.configs.recommended,\n      reactHooks.configs.flat.recommended,\n      reactRefresh.configs.vite,\n    ],\n    languageOptions: {\n      globals: globals.browser,\n      parserOptions: { ecmaFeatures: { jsx: true } },\n    },\n  },\n])\n"
+  },
+  {
+    "path": "index.html",
+    "content": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>krishidhara_v3</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.jsx\"></script>\n  </body>\n</html>\n"
+  },
+  {
+    "path": "server/db.js",
+    "content": "import sqlite3 from 'sqlite3';\nimport path from 'path';\nimport { fileURLToPath } from 'url';\n\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename);\n\nconst db = new sqlite3.Database(path.join(__dirname, 'krishidhara.db'), (err) => {\n  if (err) {\n    console.error('Error connecting to database:', err.message);\n  } else {\n    console.log('Connected to the SQLite database.');\n  }\n});\n\nexport const initDb = () => {\n  return new Promise((resolve, reject) => {\n    db.serialize(() => {\n      // Create Users Table with extended profile fields\n      db.run(`CREATE TABLE IF NOT EXISTS users (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL,\n        email TEXT UNIQUE NOT NULL,\n        password TEXT NOT NULL,\n        phone TEXT,\n        "
+  },
+  {
+    "path": "server/db.js",
+    "content": "RIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL,\n        email TEXT UNIQUE NOT NULL,\n        password TEXT NOT NULL,\n        phone TEXT,\n        location TEXT,\n        farm_size TEXT,\n        profile_picture TEXT\n      )`);\n\n      // Create Products Table with external_url support\n      db.run(`CREATE TABLE IF NOT EXISTS products (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL,\n        price INTEGER NOT NULL,\n        type TEXT NOT NULL,\n        image TEXT NOT NULL,\n        external_url TEXT\n      )`);\n\n      // Create Schemes Table\n      db.run(`CREATE TABLE IF NOT EXISTS schemes (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        name TEXT NOT NULL,\n        provider TEXT NOT NULL,\n        category TEXT NOT NULL,\n        amount TEXT NOT NULL,\n        sta"
+  },
+  {
+    "path": "server/db.js",
+    "content": "Y AUTOINCREMENT,\n        name TEXT NOT NULL,\n        provider TEXT NOT NULL,\n        category TEXT NOT NULL,\n        amount TEXT NOT NULL,\n        status TEXT NOT NULL,\n        url TEXT NOT NULL\n      )`);\n\n      // Create Market Prices Table\n      db.run(`CREATE TABLE IF NOT EXISTS market_prices (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        crop TEXT NOT NULL,\n        price TEXT NOT NULL,\n        change TEXT NOT NULL,\n        trend TEXT NOT NULL\n      )`);\n\n      // Seed Real Products\n      db.get('SELECT COUNT(*) as count FROM products', (err, row) => {\n        if (row.count === 0) {\n          console.log('Seeding Real Products...');\n          const stmt = db.prepare('INSERT INTO products (name, price, type, image, external_url) VALUES (?, ?, ?, ?, ?)');\n          // External A"
+  },
+  {
+    "path": "server/db.js",
+    "content": "');\n          const stmt = db.prepare('INSERT INTO products (name, price, type, image, external_url) VALUES (?, ?, ?, ?, ?)');\n          // External Amazon products\n          stmt.run('IFFCO NPK 12:32:16 Fertilizer (50kg)', 1470, 'Supplies', '/images/fertilizer.png', 'https://www.amazon.in/s?k=iffco+npk');\n          stmt.run('Pioneer 3028 Wheat Seeds (10kg)', 920, 'Seeds', '/images/seeds.png', 'https://www.amazon.in/s?k=wheat+seeds');\n          stmt.run('Tata Rallis TataMida Pesticide (1L)', 650, 'Supplies', '/images/pesticide.png', 'https://www.amazon.in/s?k=tata+rallis');\n          // Internal Rental products (no external URL -> handled by Stripe)\n          stmt.run('Mahindra YUVO 575 DI (Rental/Day)', 2500, 'Rental', '/images/tractor.png', null);\n          stmt.run('John Deere 5310 Harv"
+  },
+  {
+    "path": "server/db.js",
+    "content": "Stripe)\n          stmt.run('Mahindra YUVO 575 DI (Rental/Day)', 2500, 'Rental', '/images/tractor.png', null);\n          stmt.run('John Deere 5310 Harvester (Rental/Day)', 4500, 'Rental', '/images/harvester.png', null);\n          stmt.run('KisanKraft Drip Irrigation Kit (1 Acre)', 15000, 'Equipment', '/images/irrigation.png', null);\n          stmt.finalize();\n        }\n      });\n\n      // Seed Real Schemes\n      db.get('SELECT COUNT(*) as count FROM schemes', (err, row) => {\n        if (row.count === 0) {\n          console.log('Seeding Real Schemes...');\n          const stmt = db.prepare('INSERT INTO schemes (name, provider, category, amount, status, url) VALUES (?, ?, ?, ?, ?, ?)');\n          stmt.run('PM-KISAN Samman Nidhi', 'Central Govt', 'Income Support', '₹6,000/year', 'Active', 'http"
+  },
+  {
+    "path": "server/db.js",
+    "content": "status, url) VALUES (?, ?, ?, ?, ?, ?)');\n          stmt.run('PM-KISAN Samman Nidhi', 'Central Govt', 'Income Support', '₹6,000/year', 'Active', 'https://pmkisan.gov.in/');\n          stmt.run('Pradhan Mantri Krishi Sinchayee Yojana', 'Central Govt', 'Irrigation', 'Variable Subsidy', 'Active', 'https://pmksy.gov.in/');\n          stmt.run('National Mission for Sustainable Agriculture', 'Central Govt', 'Organic', '₹10,000/ha', 'Active', 'https://nmsa.dac.gov.in/');\n          stmt.run('PM KUSUM (Solar Pumps)', 'MNRE', 'Energy', 'Up to 60% Subsidy', 'Active', 'https://pmkusum.mnre.gov.in/');\n          stmt.run('Kisan Credit Card (KCC)', 'RBI / Banks', 'Credit', 'Up to ₹3 Lakh', 'Active', 'https://sbi.co.in/web/agri-rural/agriculture-banking/crop-loan/kisan-credit-card');\n          stmt.finalize"
+  },
+  {
+    "path": "server/db.js",
+    "content": "ks', 'Credit', 'Up to ₹3 Lakh', 'Active', 'https://sbi.co.in/web/agri-rural/agriculture-banking/crop-loan/kisan-credit-card');\n          stmt.finalize();\n        }\n      });\n\n      // Seed Market Prices (Fallback in case scraping fails)\n      db.get('SELECT COUNT(*) as count FROM market_prices', (err, row) => {\n        if (row.count === 0) {\n          console.log('Seeding Market Prices Fallback...');\n          const stmt = db.prepare('INSERT INTO market_prices (crop, price, change, trend) VALUES (?, ?, ?, ?)');\n          stmt.run('Wheat (Local)', '₹2,400', '+1.5%', 'up');\n          stmt.run('Basmati Rice', '₹3,600', '+2.1%', 'up');\n          stmt.run('Cotton (BT)', '₹6,100', '-0.5%', 'down');\n          stmt.run('Soybean', '₹4,200', '+0.8%', 'up');\n          stmt.run('Mustard', '₹5,100', '-"
+  },
+  {
+    "path": "server/db.js",
+    "content": "stmt.run('Cotton (BT)', '₹6,100', '-0.5%', 'down');\n          stmt.run('Soybean', '₹4,200', '+0.8%', 'up');\n          stmt.run('Mustard', '₹5,100', '-1.2%', 'down');\n          stmt.finalize();\n        }\n      });\n      \n      resolve();\n    });\n  });\n};\n\nexport default db;\n"
+  },
+  {
+    "path": "server/index.js",
+    "content": "import express from 'express';\nimport cors from 'cors';\nimport bcrypt from 'bcryptjs';\nimport jwt from 'jsonwebtoken';\nimport dotenv from 'dotenv';\nimport Stripe from 'stripe';\nimport axios from 'axios';\nimport db, { initDb } from './db.js';\n\ndotenv.config();\n\nconst app = express();\nconst PORT = 5000;\nconst JWT_SECRET = 'your_super_secret_jwt_key_here';\nconst stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');\n\napp.use(cors());\napp.use(express.json({ limit: '50mb' }));\n\n// Auth Middleware\nconst authenticateToken = (req, res, next) => {\n  const authHeader = req.headers['authorization'];\n  const token = authHeader && authHeader.split(' ')[1];\n  \n  if (!token) return res.sendStatus(401);\n\n  jwt.verify(token, JWT_SECRET, (err, user) => {\n    if (err) return res.sendSta"
+  },
+  {
+    "path": "server/index.js",
+    "content": "thHeader.split(' ')[1];\n  \n  if (!token) return res.sendStatus(401);\n\n  jwt.verify(token, JWT_SECRET, (err, user) => {\n    if (err) return res.sendStatus(403);\n    req.user = user;\n    next();\n  });\n};\n\n// Initialize Database\ninitDb().then(() => {\n  console.log('Database initialized successfully.');\n}).catch(err => {\n  console.error('Database init failed:', err);\n});\n\n// Auth Routes\napp.post('/api/auth/register', (req, res) => {\n  const { name, email, password } = req.body;\n  if (!name || !email || !password) return res.status(400).json({ error: 'All fields required' });\n\n  const hashedPassword = bcrypt.hashSync(password, 10);\n\n  db.run('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword], function(err) {\n    if (err) {\n      if (err.message.includes("
+  },
+  {
+    "path": "server/index.js",
+    "content": "RT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword], function(err) {\n    if (err) {\n      if (err.message.includes('UNIQUE constraint failed')) {\n        return res.status(400).json({ error: 'Email already exists' });\n      }\n      return res.status(500).json({ error: err.message });\n    }\n    \n    const token = jwt.sign({ id: this.lastID, name, email }, JWT_SECRET, { expiresIn: '24h' });\n    res.json({ token, user: { id: this.lastID, name, email } });\n  });\n});\n\napp.post('/api/auth/login', (req, res) => {\n  const { email, password } = req.body;\n  \n  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {\n    if (err) return res.status(500).json({ error: err.message });\n    if (!user) return res.status(400).json({ error: 'Invalid credentia"
+  },
+  {
+    "path": "server/index.js",
+    "content": "r, user) => {\n    if (err) return res.status(500).json({ error: err.message });\n    if (!user) return res.status(400).json({ error: 'Invalid credentials' });\n\n    const validPassword = bcrypt.compareSync(password, user.password);\n    if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });\n\n    const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '24h' });\n    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });\n  });\n});\n\napp.get('/api/auth/me', authenticateToken, (req, res) => {\n  db.get('SELECT id, name, email, phone, location, farm_size, profile_picture FROM users WHERE id = ?', [req.user.id], (err, user) => {\n    if (err) return res.status(500).json({ error: err.message });\n    res.jso"
+  },
+  {
+    "path": "server/index.js",
+    "content": "rofile_picture FROM users WHERE id = ?', [req.user.id], (err, user) => {\n    if (err) return res.status(500).json({ error: err.message });\n    res.json({ user });\n  });\n});\n\napp.put('/api/auth/profile', authenticateToken, (req, res) => {\n  const { phone, location, farm_size, profile_picture, name } = req.body;\n  \n  db.run(\n    'UPDATE users SET name = ?, phone = ?, location = ?, farm_size = ?, profile_picture = ? WHERE id = ?',\n    [name, phone, location, farm_size, profile_picture, req.user.id],\n    function(err) {\n      if (err) return res.status(500).json({ error: err.message });\n      res.json({ success: true, message: 'Profile updated' });\n    }\n  );\n});\n\n// GET real schemes\napp.get('/api/schemes', (req, res) => {\n  db.all('SELECT * FROM schemes', [], (err, rows) => {\n    if (err) ret"
+  },
+  {
+    "path": "server/index.js",
+    "content": ");\n    }\n  );\n});\n\n// GET real schemes\napp.get('/api/schemes', (req, res) => {\n  db.all('SELECT * FROM schemes', [], (err, rows) => {\n    if (err) return res.status(500).json({ error: err.message });\n    res.json(rows);\n  });\n});\n\n// Stripe Checkout Session\napp.post('/api/create-checkout-session', authenticateToken, async (req, res) => {\n  const { items } = req.body; // Array of cart items\n\n  try {\n    const lineItems = items.map(item => ({\n      price_data: {\n        currency: 'inr',\n        product_data: {\n          name: item.name,\n        },\n        unit_amount: item.price * 100, // Stripe expects amounts in cents/paise\n      },\n      quantity: 1,\n    }));\n\n    const session = await stripe.checkout.sessions.create({\n      payment_method_types: ['card'],\n      line_items: lineItems,\n   "
+  },
+  {
+    "path": "server/index.js",
+    "content": "ntity: 1,\n    }));\n\n    const session = await stripe.checkout.sessions.create({\n      payment_method_types: ['card'],\n      line_items: lineItems,\n      mode: 'payment',\n      success_url: 'http://localhost:5179/cart?success=true',\n      cancel_url: 'http://localhost:5179/cart?canceled=true',\n    });\n\n    res.json({ id: session.id, url: session.url });\n  } catch (error) {\n    console.error(\"Stripe error:\", error);\n    res.status(500).json({ error: error.message });\n  }\n});\n\n// Hugging Face AI Disease Scanner Endpoint\napp.post('/api/scan-disease', authenticateToken, async (req, res) => {\n  try {\n    const { imageBase64 } = req.body;\n    if (!imageBase64) return res.status(400).json({ error: 'No image provided' });\n\n    // Strip base64 header\n    const base64Data = imageBase64.replace(/^data"
+  },
+  {
+    "path": "server/index.js",
+    "content": "mageBase64) return res.status(400).json({ error: 'No image provided' });\n\n    // Strip base64 header\n    const base64Data = imageBase64.replace(/^data:image\\/\\w+;base64,/, \"\");\n    const buffer = Buffer.from(base64Data, 'base64');\n\n    // Make request to Hugging Face Inference API using a popular Plant Disease model\n    // Note: If no token is provided, this will likely fail or hit a rate limit.\n    const hfToken = process.env.HUGGING_FACE_TOKEN;\n    \n    if (!hfToken || hfToken === 'hf_placeholder_token_here') {\n      // Return a simulated response if API key is missing (for demo purposes)\n      return setTimeout(() => {\n        res.json({\n          disease: 'Leaf Blight (Simulated - No API Key)',\n          confidence: 94.2,\n          severity: 'Moderate',\n          recommendation: 'Pleas"
+  },
+  {
+    "path": "server/index.js",
+    "content": "         disease: 'Leaf Blight (Simulated - No API Key)',\n          confidence: 94.2,\n          severity: 'Moderate',\n          recommendation: 'Please configure HUGGING_FACE_TOKEN in server/.env to get real predictions.'\n        });\n      }, 2000);\n    }\n\n    const response = await axios.post(\n      'https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification',\n      buffer,\n      {\n        headers: {\n          'Authorization': `Bearer ${hfToken}`,\n          'Content-Type': 'application/octet-stream'\n        }\n      }\n    );\n\n    // HF returns an array of label/score objects\n    const predictions = response.data;\n    if (predictions && predictions.length > 0) {\n      const topPrediction = predictions[0];\n      \n      res.json({\n        disease"
+  },
+  {
+    "path": "server/index.js",
+    "content": " = response.data;\n    if (predictions && predictions.length > 0) {\n      const topPrediction = predictions[0];\n      \n      res.json({\n        disease: topPrediction.label,\n        confidence: (topPrediction.score * 100).toFixed(1),\n        severity: topPrediction.score > 0.8 ? 'High' : 'Moderate',\n        recommendation: 'Based on AI analysis, monitor the crop closely. Apply standard fungicides if spread continues.'\n      });\n    } else {\n      res.status(500).json({ error: 'Could not identify disease.' });\n    }\n\n  } catch (error) {\n    console.error(\"AI API Error:\", error.response?.data || error.message);\n    res.status(500).json({ error: 'AI processing failed. Ensure HF token is valid.' });\n  }\n});\n\n// GET all products\napp.get('/api/products', (req, res) => {\n  db.all('SELECT * FROM pr"
+  },
+  {
+    "path": "server/index.js",
+    "content": "'AI processing failed. Ensure HF token is valid.' });\n  }\n});\n\n// GET all products\napp.get('/api/products', (req, res) => {\n  db.all('SELECT * FROM products', [], (err, rows) => {\n    if (err) {\n      res.status(500).json({ error: err.message });\n      return;\n    }\n    res.json(rows);\n  });\n});\n\n// GET market prices\napp.get('/api/market-prices', (req, res) => {\n  db.all('SELECT * FROM market_prices', [], (err, rows) => {\n    if (err) {\n      res.status(500).json({ error: err.message });\n      return;\n    }\n    res.json(rows);\n  });\n});\n\napp.listen(PORT, () => {\n  console.log(`Backend API Server running on http://localhost:${PORT}`);\n});\n"
+  },
+  {
+    "path": "src/App.css",
+    "content": ".counter {\n  font-size: 16px;\n  padding: 5px 10px;\n  border-radius: 5px;\n  color: var(--accent);\n  background: var(--accent-bg);\n  border: 2px solid transparent;\n  transition: border-color 0.3s;\n  margin-bottom: 24px;\n\n  &:hover {\n    border-color: var(--accent-border);\n  }\n  &:focus-visible {\n    outline: 2px solid var(--accent);\n    outline-offset: 2px;\n  }\n}\n\n.hero {\n  position: relative;\n\n  .base,\n  .framework,\n  .vite {\n    inset-inline: 0;\n    margin: 0 auto;\n  }\n\n  .base {\n    width: 170px;\n    position: relative;\n    z-index: 0;\n  }\n\n  .framework,\n  .vite {\n    position: absolute;\n  }\n\n  .framework {\n    z-index: 1;\n    top: 34px;\n    height: 28px;\n    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)\n      scale(1.4);\n  }\n\n  .vite {\n    z-index: 0;\n    t"
+  },
+  {
+    "path": "src/App.css",
+    "content": " height: 28px;\n    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)\n      scale(1.4);\n  }\n\n  .vite {\n    z-index: 0;\n    top: 107px;\n    height: 26px;\n    width: auto;\n    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)\n      scale(0.8);\n  }\n}\n\n#center {\n  display: flex;\n  flex-direction: column;\n  gap: 25px;\n  place-content: center;\n  place-items: center;\n  flex-grow: 1;\n\n  @media (max-width: 1024px) {\n    padding: 32px 20px 24px;\n    gap: 18px;\n  }\n}\n\n#next-steps {\n  display: flex;\n  border-top: 1px solid var(--border);\n  text-align: left;\n\n  & > div {\n    flex: 1 1 0;\n    padding: 32px;\n    @media (max-width: 1024px) {\n      padding: 24px 20px;\n    }\n  }\n\n  .icon {\n    margin-bottom: 16px;\n    width: 22px;\n    height: 22px;\n  }\n\n "
+  },
+  {
+    "path": "src/App.css",
+    "content": "px;\n    @media (max-width: 1024px) {\n      padding: 24px 20px;\n    }\n  }\n\n  .icon {\n    margin-bottom: 16px;\n    width: 22px;\n    height: 22px;\n  }\n\n  @media (max-width: 1024px) {\n    flex-direction: column;\n    text-align: center;\n  }\n}\n\n#docs {\n  border-right: 1px solid var(--border);\n\n  @media (max-width: 1024px) {\n    border-right: none;\n    border-bottom: 1px solid var(--border);\n  }\n}\n\n#next-steps ul {\n  list-style: none;\n  padding: 0;\n  display: flex;\n  gap: 8px;\n  margin: 32px 0 0;\n\n  .logo {\n    height: 18px;\n  }\n\n  a {\n    color: var(--text-h);\n    font-size: 16px;\n    border-radius: 6px;\n    background: var(--social-bg);\n    display: flex;\n    padding: 6px 12px;\n    align-items: center;\n    gap: 8px;\n    text-decoration: none;\n    transition: box-shadow 0.3s;\n\n    &:hover {\n    "
+  },
+  {
+    "path": "src/App.css",
+    "content": "y: flex;\n    padding: 6px 12px;\n    align-items: center;\n    gap: 8px;\n    text-decoration: none;\n    transition: box-shadow 0.3s;\n\n    &:hover {\n      box-shadow: var(--shadow);\n    }\n    .button-icon {\n      height: 18px;\n      width: 18px;\n    }\n  }\n\n  @media (max-width: 1024px) {\n    margin-top: 20px;\n    flex-wrap: wrap;\n    justify-content: center;\n\n    li {\n      flex: 1 1 calc(50% - 8px);\n    }\n\n    a {\n      width: 100%;\n      justify-content: center;\n      box-sizing: border-box;\n    }\n  }\n}\n\n#spacer {\n  height: 88px;\n  border-top: 1px solid var(--border);\n  @media (max-width: 1024px) {\n    height: 48px;\n  }\n}\n\n.ticks {\n  position: relative;\n  width: 100%;\n\n  &::before,\n  &::after {\n    content: '';\n    position: absolute;\n    top: -4.5px;\n    border: 5px solid transparent;\n  }\n\n"
+  },
+  {
+    "path": "src/App.css",
+    "content": "relative;\n  width: 100%;\n\n  &::before,\n  &::after {\n    content: '';\n    position: absolute;\n    top: -4.5px;\n    border: 5px solid transparent;\n  }\n\n  &::before {\n    left: 0;\n    border-left-color: var(--border);\n  }\n  &::after {\n    right: 0;\n    border-right-color: var(--border);\n  }\n}\n"
+  },
+  {
+    "path": "src/index.css",
+    "content": "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n\n:root {\n  /* Clean Professional Theme */\n  --primary: #10b981; /* Emerald green */\n  --primary-dark: #059669;\n  --primary-light: #d1fae5;\n  \n  --secondary: #3b82f6; /* Blue for actions/links */\n  --accent: #f59e0b; /* Amber for warnings/highlights */\n  --danger: #ef4444; /* Red for errors/destructive actions */\n  \n  --bg-app: #f3f4f6; /* Light gray app background */\n  --bg-surface: #ffffff;\n  --bg-sidebar: #111827; /* Dark sidebar */\n  \n  --text-main: #1f2937;\n  --text-muted: #6b7280;\n  --text-sidebar: #9ca3af;\n  --text-sidebar-active: #ffffff;\n  \n  --border-color: #e5e7eb;\n  --border-sidebar: #1f2937;\n  \n  --radius-lg: 12px;\n  --radius-md: 8px;\n  --radius-sm: 4px;\n  \n  --shadow-sm: 0 1px "
+  },
+  {
+    "path": "src/index.css",
+    "content": "f;\n  \n  --border-color: #e5e7eb;\n  --border-sidebar: #1f2937;\n  \n  --radius-lg: 12px;\n  --radius-md: 8px;\n  --radius-sm: 4px;\n  \n  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);\n  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);\n  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);\n  \n  --transition: all 0.2s ease;\n}\n\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-family: 'Inter', sans-serif;\n  background-color: var(--bg-app);\n  color: var(--text-main);\n  line-height: 1.5;\n}\n\na {\n  text-decoration: none;\n  color: inherit;\n}\n\nul {\n  list-style: none;\n}\n\nbutton {\n  font-family: inherit;\n  cursor: pointer;\n  border: none;\n  outline: none;\n}\n\n/* Layout */\n.app-container {\n  display: flex;\n  height: 1"
+  },
+  {
+    "path": "src/index.css",
+    "content": "\n}\n\nbutton {\n  font-family: inherit;\n  cursor: pointer;\n  border: none;\n  outline: none;\n}\n\n/* Layout */\n.app-container {\n  display: flex;\n  height: 100vh;\n  overflow: hidden;\n}\n\n/* Sidebar */\n.sidebar {\n  width: 260px;\n  background-color: var(--bg-sidebar);\n  color: var(--text-sidebar);\n  display: flex;\n  flex-direction: column;\n  flex-shrink: 0;\n  border-right: 1px solid var(--border-sidebar);\n}\n\n.sidebar-brand {\n  height: 70px;\n  display: flex;\n  align-items: center;\n  padding: 0 1.5rem;\n  font-size: 1.5rem;\n  font-weight: 700;\n  color: white;\n  border-bottom: 1px solid var(--border-sidebar);\n  gap: 0.75rem;\n}\n\n.sidebar-brand span {\n  color: var(--primary);\n}\n\n.sidebar-nav {\n  flex: 1;\n  padding: 1.5rem 1rem;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 0.5rem;\n"
+  },
+  {
+    "path": "src/index.css",
+    "content": "r: var(--primary);\n}\n\n.sidebar-nav {\n  flex: 1;\n  padding: 1.5rem 1rem;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 0.5rem;\n}\n\n.nav-item {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  padding: 0.75rem 1rem;\n  border-radius: var(--radius-md);\n  color: var(--text-sidebar);\n  font-weight: 500;\n  transition: var(--transition);\n}\n\n.nav-item:hover {\n  background-color: rgba(255, 255, 255, 0.05);\n  color: var(--text-sidebar-active);\n}\n\n.nav-item.active {\n  background-color: var(--primary);\n  color: white;\n}\n\n/* Main Content area */\n.main-wrapper {\n  flex: 1;\n  display: flex;\n  flex-direction: column;\n  overflow: hidden;\n}\n\n/* Header */\n.header {\n  height: 70px;\n  background-color: var(--bg-surface);\n  border-bottom: 1px solid var(--border-color);\n  display: fle"
+  },
+  {
+    "path": "src/index.css",
+    "content": "idden;\n}\n\n/* Header */\n.header {\n  height: 70px;\n  background-color: var(--bg-surface);\n  border-bottom: 1px solid var(--border-color);\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 0 2rem;\n  flex-shrink: 0;\n}\n\n.header-search input {\n  padding: 0.5rem 1rem 0.5rem 2.5rem;\n  border-radius: 99px;\n  border: 1px solid var(--border-color);\n  background-color: var(--bg-app);\n  width: 300px;\n  outline: none;\n  transition: var(--transition);\n}\n\n.header-search input:focus {\n  border-color: var(--primary);\n  background-color: white;\n  box-shadow: 0 0 0 3px var(--primary-light);\n}\n\n.header-search {\n  position: relative;\n}\n\n.header-search .search-icon {\n  position: absolute;\n  left: 10px;\n  top: 50%;\n  transform: translateY(-50%);\n  color: var(--text-muted);\n}\n\n.h"
+  },
+  {
+    "path": "src/index.css",
+    "content": "ive;\n}\n\n.header-search .search-icon {\n  position: absolute;\n  left: 10px;\n  top: 50%;\n  transform: translateY(-50%);\n  color: var(--text-muted);\n}\n\n.header-actions {\n  display: flex;\n  align-items: center;\n  gap: 1.5rem;\n}\n\n.icon-btn {\n  background: none;\n  border: none;\n  color: var(--text-muted);\n  cursor: pointer;\n  position: relative;\n  transition: var(--transition);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n.icon-btn:hover {\n  color: var(--primary);\n}\n\n.badge {\n  position: absolute;\n  top: -5px;\n  right: -5px;\n  background-color: var(--danger);\n  color: white;\n  font-size: 0.7rem;\n  font-weight: 700;\n  height: 18px;\n  min-width: 18px;\n  border-radius: 9px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0 4px;\n}\n\n.user-profile "
+  },
+  {
+    "path": "src/index.css",
+    "content": " 18px;\n  min-width: 18px;\n  border-radius: 9px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0 4px;\n}\n\n.user-profile {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  font-weight: 500;\n  cursor: pointer;\n}\n\n.avatar {\n  width: 36px;\n  height: 36px;\n  border-radius: 50%;\n  background-color: var(--primary-light);\n  color: var(--primary-dark);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 600;\n}\n\n/* Page Content */\n.page-content {\n  flex: 1;\n  overflow-y: auto;\n  padding: 2rem;\n}\n\n.page-header {\n  margin-bottom: 2rem;\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-end;\n}\n\n.page-title {\n  font-size: 1.75rem;\n  font-weight: 700;\n  color: var(--text-main);\n  margin-bottom: 0.25rem;\n}\n\n.page-subt"
+  },
+  {
+    "path": "src/index.css",
+    "content": "  align-items: flex-end;\n}\n\n.page-title {\n  font-size: 1.75rem;\n  font-weight: 700;\n  color: var(--text-main);\n  margin-bottom: 0.25rem;\n}\n\n.page-subtitle {\n  color: var(--text-muted);\n  font-size: 0.95rem;\n}\n\n/* Cards & Panels */\n.card {\n  background-color: var(--bg-surface);\n  border-radius: var(--radius-lg);\n  border: 1px solid var(--border-color);\n  box-shadow: var(--shadow-sm);\n  padding: 1.5rem;\n}\n\n.card-title {\n  font-size: 1.1rem;\n  font-weight: 600;\n  margin-bottom: 1rem;\n  display: flex;\n  align-items: center;\n  gap: 0.5rem;\n  color: var(--text-main);\n}\n\n/* Utilities */\n.grid { display: grid; }\n.flex { display: flex; }\n.gap-2 { gap: 0.5rem; }\n.gap-4 { gap: 1rem; }\n.gap-6 { gap: 1.5rem; }\n.items-center { align-items: center; }\n.justify-between { justify-content: space-between; }\n."
+  },
+  {
+    "path": "src/index.css",
+    "content": " 0.5rem; }\n.gap-4 { gap: 1rem; }\n.gap-6 { gap: 1.5rem; }\n.items-center { align-items: center; }\n.justify-between { justify-content: space-between; }\n.flex-col { flex-direction: column; }\n.mt-4 { margin-top: 1rem; }\n.mt-6 { margin-top: 1.5rem; }\n.mb-4 { margin-bottom: 1rem; }\n\n.btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  padding: 0.5rem 1rem;\n  border-radius: var(--radius-md);\n  font-weight: 500;\n  transition: var(--transition);\n  font-size: 0.95rem;\n}\n\n.btn-primary {\n  background-color: var(--primary);\n  color: white;\n}\n.btn-primary:hover { background-color: var(--primary-dark); }\n\n.btn-outline {\n  background-color: transparent;\n  border: 1px solid var(--border-color);\n  color: var(--text-main);\n}\n.btn-outline:hover {\n  border-color: var"
+  },
+  {
+    "path": "src/index.css",
+    "content": "line {\n  background-color: transparent;\n  border: 1px solid var(--border-color);\n  color: var(--text-main);\n}\n.btn-outline:hover {\n  border-color: var(--primary);\n  color: var(--primary);\n  background-color: var(--primary-light);\n}\n\n.btn-danger {\n  background-color: var(--danger);\n  color: white;\n}\n\n/* Forms */\n.form-group {\n  margin-bottom: 1.25rem;\n}\n.form-label {\n  display: block;\n  font-weight: 500;\n  margin-bottom: 0.5rem;\n  color: var(--text-main);\n  font-size: 0.95rem;\n}\n.form-input, .form-select {\n  width: 100%;\n  padding: 0.65rem 1rem;\n  border: 1px solid var(--border-color);\n  border-radius: var(--radius-md);\n  font-family: inherit;\n  font-size: 0.95rem;\n  color: var(--text-main);\n  background-color: var(--bg-surface);\n  transition: var(--transition);\n  outline: none;\n}\n.form-inp"
+  },
+  {
+    "path": "src/index.css",
+    "content": "\n  font-size: 0.95rem;\n  color: var(--text-main);\n  background-color: var(--bg-surface);\n  transition: var(--transition);\n  outline: none;\n}\n.form-input:focus, .form-select:focus {\n  border-color: var(--primary);\n  box-shadow: 0 0 0 3px var(--primary-light);\n}\n\n/* Stat Card */\n.stat-card {\n  display: flex;\n  align-items: center;\n  gap: 1.5rem;\n}\n.stat-icon {\n  width: 54px;\n  height: 54px;\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.stat-content h4 {\n  font-size: 0.85rem;\n  color: var(--text-muted);\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n  font-weight: 600;\n  margin-bottom: 0.25rem;\n}\n.stat-value {\n  font-size: 1.75rem;\n  font-weight: 700;\n  line-height: 1.2;\n}\n\n/* Animations */\n@keyframes slideUp {\n  from { opacity: 0; transfor"
+  },
+  {
+    "path": "src/index.css",
+    "content": ";\n}\n.stat-value {\n  font-size: 1.75rem;\n  font-weight: 700;\n  line-height: 1.2;\n}\n\n/* Animations */\n@keyframes slideUp {\n  from { opacity: 0; transform: translateY(10px); }\n  to { opacity: 1; transform: translateY(0); }\n}\n.animate-slide-up {\n  animation: slideUp 0.3s ease-out forwards;\n}\n"
+  },
+  {
+    "path": "vite.config.js",
+    "content": "import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\n\n// https://vite.dev/config/\nexport default defineConfig({\n  plugins: [react()],\n  server: {\n    proxy: {\n      '/api': {\n        target: 'http://localhost:5000',\n        changeOrigin: true\n      }\n    }\n  }\n})\n"
+  }
+]
