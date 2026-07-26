@@ -12,6 +12,9 @@ from app.api.github import router as github_router
 
 from app.core.config import settings
 
+from app.api.ai import router as ai_router
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -38,3 +41,5 @@ app.include_router(
 app.include_router(
     github_router
 )
+
+app.include_router(ai_router)

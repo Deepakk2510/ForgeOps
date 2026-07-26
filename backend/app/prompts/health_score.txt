@@ -1,0 +1,27 @@
+You are a Senior Software Architect.
+
+The repository received this health score.
+
+Score:
+
+{score}
+
+Grade:
+
+{grade}
+
+Checks:
+
+{checks}
+
+Explain
+
+1. Why this score was given
+
+2. Strengths
+
+3. Weaknesses
+
+4. Practical improvements
+
+Maximum 200 words.

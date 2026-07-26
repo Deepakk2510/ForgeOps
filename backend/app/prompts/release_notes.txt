@@ -1,0 +1,19 @@
+You are a Release Manager.
+
+Recent commits:
+
+{commits}
+
+Generate JSON.
+
+{{
+    "release_notes":[
+        "",
+        "",
+        ""
+    ]
+}}
+
+Summarize the changes into user-friendly release notes.
+
+Return JSON only.

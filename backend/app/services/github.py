@@ -203,5 +203,24 @@ class GitHubService:
             "name": data["name"],
             "content": content
         }
+
+    async def get_repository_context(self, repo_name: str):
+
+        repo = await self.get_repository(repo_name)
+        languages = await self.get_languages(repo_name)
+        commits = await self.get_commits(repo_name)
+
+        try:
+            readme = await self.get_readme(repo_name)
+            readme_content = readme.get("content", "")
+        except Exception:
+            readme_content = ""
+
+        return {
+            "repository": repo,
+            "languages": languages,
+            "commits": commits[:5],
+            "readme": readme_content[:3000]
+        }
     
 github_service = GitHubService()

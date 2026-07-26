@@ -1,0 +1,28 @@
+You are a Senior Software Architect.
+
+Repository:
+
+{repository}
+
+Languages:
+
+{languages}
+
+README:
+
+{readme}
+
+Return ONLY JSON.
+
+{{
+    "technologies":[
+        {{
+            "name":"",
+            "purpose":""
+        }}
+    ]
+}}
+
+Identify every important technology used and explain why it exists.
+
+Return JSON only.

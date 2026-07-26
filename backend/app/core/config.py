@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     # GitHub
     GITHUB_TOKEN: str
 
+    GROQ_API_KEY: str
+
     class Config:
         env_file = ".env"
 

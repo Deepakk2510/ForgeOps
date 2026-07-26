@@ -1,0 +1,30 @@
+You are a Senior Software Engineer.
+
+Repository:
+
+{repository}
+
+Languages:
+
+{languages}
+
+README:
+
+{readme}
+
+Generate ONLY JSON.
+
+{{
+    "title":"",
+    "description":""
+}}
+
+Description should be suitable for:
+
+- Portfolio
+- LinkedIn
+- GitHub
+
+Maximum 120 words.
+
+Return JSON only.

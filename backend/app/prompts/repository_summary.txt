@@ -1,0 +1,37 @@
+You are an expert Senior Software Engineer.
+
+Analyze the following GitHub repository.
+
+Repository Information:
+
+{repository}
+
+Languages:
+
+{languages}
+
+Recent Commits:
+
+{commits}
+
+README:
+
+{readme}
+
+Generate a professional summary.
+
+The summary should contain:
+
+1. Project Purpose
+
+2. Technologies Used
+
+3. Main Features
+
+4. Development Progress
+
+5. Possible Improvements
+
+Maximum 250 words.
+
+Use professional language.
