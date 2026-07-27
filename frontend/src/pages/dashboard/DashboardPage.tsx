@@ -4,6 +4,9 @@ import RecentRepositories from "@/components/dashboard/RecentRepositories";
 import BuildChart from "@/components/dashboard/BuildChart";
 import LanguageChart from "@/components/dashboard/LanguageChart";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
+import { useEffect } from "react";
+import { repositoryService } from "@/services/repository.service";
+
 
 import {
   FolderGit2,
@@ -54,6 +57,14 @@ const stats = [
 ];
 
 export default function DashboardPage() {
+
+  useEffect(() => {
+    repositoryService
+      .getAll()
+      .then((data) => console.log(data))
+      .catch(console.error);
+  }, []);
+
   return (
     <div className="space-y-8">
       <DashboardHeader />

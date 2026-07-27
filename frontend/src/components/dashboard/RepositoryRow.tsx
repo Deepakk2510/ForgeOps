@@ -9,7 +9,7 @@ interface RepositoryRowProps {
   language: string;
   stars: number;
   lastCommit: string;
-  status: "Healthy" | "Active" | "Pending";
+  status: "Active" | "Building" | "Archived";
 }
 
 export default function RepositoryRow({
@@ -20,13 +20,13 @@ export default function RepositoryRow({
   status,
 }: RepositoryRowProps) {
   const statusColor = {
-    Healthy:
+    Active:
       "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
 
-    Active:
+    Building:
       "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
 
-    Pending:
+    Archived:
       "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
   };
 

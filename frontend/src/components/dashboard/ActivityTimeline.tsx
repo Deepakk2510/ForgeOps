@@ -47,7 +47,7 @@ export default function ActivityTimeline() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {activities.map((activity, index) => {
+        {activities.map((activity) => {
           const Icon = activity.icon;
 
           return (

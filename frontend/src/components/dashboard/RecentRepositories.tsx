@@ -7,51 +7,59 @@ import {
 
 import RepositoryRow from "./RepositoryRow";
 
-const repositories = [
-  {
-    name: "ForgeOps",
-    language: "TypeScript",
-    stars: 156,
-    lastCommit: "2 mins ago",
-    status: "Healthy" as const,
-  },
-  {
-    name: "helPG",
-    language: "React",
-    stars: 48,
-    lastCommit: "Yesterday",
-    status: "Active" as const,
-  },
-  {
-    name: "Portfolio",
-    language: "Next.js",
-    stars: 31,
-    lastCommit: "3 days ago",
-    status: "Pending" as const,
-  },
-];
+import { useEffect, useState } from "react";
+import { repositoryService } from "@/services/repository.service";
+import type { Repository } from "@/types/repository";
 
 export default function RecentRepositories() {
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRepositories() {
+      try {
+        const response = await repositoryService.getAll();
+        setRepositories(response.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchRepositories();
+  }, []);
+
   return (
     <Card>
-
       <CardHeader>
-        <CardTitle>
-          Recent Repositories
-        </CardTitle>
+        <CardTitle>Recent Repositories</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
 
-        {repositories.map((repo) => (
-          <RepositoryRow
-            key={repo.name}
-            {...repo}
-          />
-        ))}
+        {loading && (
+          <p>Loading repositories...</p>
+        )}
 
+        {!loading && repositories.length === 0 && (
+          <p className="text-muted-foreground">
+            No repositories found.
+          </p>
+        )}
+
+        {!loading &&
+          repositories.map((repo) => (
+            <RepositoryRow
+              key={repo._id}
+              name={repo.name}
+              language={repo.language}
+              stars={repo.stars}
+              status={repo.status}
+              lastCommit="Just now"
+            />
+          ))}
       </CardContent>
-
     </Card>
   );
 }
