@@ -1,3 +1,8 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -7,6 +12,8 @@ venv/
 
 # Environment variables
 .env
+backend/.env
+frontend/.env
 
 # VS Code
 .vscode/
@@ -20,6 +27,8 @@ venv/
 # Build files
 dist/
 build/
+backend/dist/
+frontend/dist/
 
 # Python packaging
 *.egg-info/
