@@ -9,6 +9,7 @@ import RepositoryRow from "./RepositoryRow";
 
 import { useQuery } from "@tanstack/react-query";
 import { repositoryService } from "@/services/repository.service";
+
 import type { Repository } from "@/types/repository";
 
 export default function RecentRepositories() {
@@ -56,11 +57,7 @@ export default function RecentRepositories() {
           repositories.map((repo) => (
             <RepositoryRow
               key={repo._id}
-              name={repo.name}
-              language={repo.language}
-              stars={repo.stars}
-              status={repo.status}
-              lastCommit="Just now"
+              repository={repo}
             />
           ))}
       </CardContent>
