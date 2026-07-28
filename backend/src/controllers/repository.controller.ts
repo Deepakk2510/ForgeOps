@@ -1,22 +1,29 @@
 import { Request, Response } from "express";
 import { Repository } from "../models/Repository.js";
 
-// Create Repository
 export const createRepository = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
+    console.log("========== CREATE REQUEST ==========");
+    console.log("BODY RECEIVED:", req.body);
+
     const repository = await Repository.create(req.body);
+
+    console.log("REPOSITORY CREATED:", repository);
 
     res.status(201).json({
       success: true,
       data: repository,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("========== CREATE ERROR ==========");
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: "Failed to create repository",
+      message: error.message,
       error,
     });
   }

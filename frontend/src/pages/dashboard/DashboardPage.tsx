@@ -4,9 +4,7 @@ import RecentRepositories from "@/components/dashboard/RecentRepositories";
 import BuildChart from "@/components/dashboard/BuildChart";
 import LanguageChart from "@/components/dashboard/LanguageChart";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
-import { useEffect } from "react";
-import { repositoryService } from "@/services/repository.service";
-
+import CreateRepositoryDialog from "@/components/repositories/CreateRepositoryDialog";
 
 import {
   FolderGit2,
@@ -57,17 +55,13 @@ const stats = [
 ];
 
 export default function DashboardPage() {
-
-  useEffect(() => {
-    repositoryService
-      .getAll()
-      .then((data) => console.log(data))
-      .catch(console.error);
-  }, []);
-
   return (
     <div className="space-y-8">
-      <DashboardHeader />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <DashboardHeader />
+        <CreateRepositoryDialog />
+      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">

@@ -7,7 +7,12 @@ export const repositoryService = {
   },
 
   create: async (data: unknown) => {
+    console.log("📤 Sending Repository:", data);
+
     const response = await api.post("/repositories", data);
+
+    console.log("📥 Response:", response.data);
+
     return response.data;
   },
 
