@@ -1,18 +1,19 @@
 import api from "@/api/api";
+import type { Repository } from "@/types/repository";
+
+interface RepositoryResponse {
+  success: boolean;
+  data: Repository[];
+}
 
 export const repositoryService = {
-  getAll: async () => {
-    const response = await api.get("/repositories");
+  getAll: async (): Promise<RepositoryResponse> => {
+    const response = await api.get<RepositoryResponse>("/repositories");
     return response.data;
   },
 
   create: async (data: unknown) => {
-    console.log("📤 Sending Repository:", data);
-
     const response = await api.post("/repositories", data);
-
-    console.log("📥 Response:", response.data);
-
     return response.data;
   },
 

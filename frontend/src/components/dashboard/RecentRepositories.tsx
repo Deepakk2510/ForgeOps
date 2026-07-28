@@ -22,7 +22,13 @@ export default function RecentRepositories() {
     queryFn: repositoryService.getAll,
   });
 
-  const repositories: Repository[] = data?.data ?? [];
+  const repositories: Repository[] = (data?.data ?? [])
+    .sort(
+      (a : Repository, b : Repository) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    )
+    .slice(0, 5);
 
   if (error) {
     return (
@@ -43,23 +49,22 @@ export default function RecentRepositories() {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {isLoading && (
-          <p>Loading repositories...</p>
-        )}
-
-        {!isLoading && repositories.length === 0 && (
+        {isLoading ? (
+          <p className="text-muted-foreground">
+            Loading repositories...
+          </p>
+        ) : repositories.length === 0 ? (
           <p className="text-muted-foreground">
             No repositories found.
           </p>
-        )}
-
-        {!isLoading &&
+        ) : (
           repositories.map((repo) => (
             <RepositoryRow
               key={repo._id}
               repository={repo}
             />
-          ))}
+          ))
+        )}
       </CardContent>
     </Card>
   );
