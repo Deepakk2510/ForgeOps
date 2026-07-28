@@ -1,41 +1,41 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { Repository } from "../models/Repository.js";
+import { AuthRequest } from "../middleware/auth.middleware.js";
 
+// Create Repository
 export const createRepository = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    console.log("========== CREATE REQUEST ==========");
-    console.log("BODY RECEIVED:", req.body);
-
-    const repository = await Repository.create(req.body);
-
-    console.log("REPOSITORY CREATED:", repository);
+    const repository = await Repository.create({
+      ...req.body,
+      owner: req.userId,
+    });
 
     res.status(201).json({
       success: true,
       data: repository,
     });
   } catch (error: any) {
-    console.error("========== CREATE ERROR ==========");
     console.error(error);
 
     res.status(500).json({
       success: false,
       message: error.message,
-      error,
     });
   }
 };
 
-// Get All Repositories
+// Get All Repositories (Current User Only)
 export const getRepositories = async (
-  _req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const repositories = await Repository.find().sort({
+    const repositories = await Repository.find({
+      owner: req.userId,
+    }).sort({
       createdAt: -1,
     });
 
@@ -48,18 +48,20 @@ export const getRepositories = async (
     res.status(500).json({
       success: false,
       message: "Failed to fetch repositories",
-      error,
     });
   }
 };
 
 // Get Single Repository
 export const getRepositoryById = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const repository = await Repository.findById(req.params.id);
+    const repository = await Repository.findOne({
+      _id: req.params.id,
+      owner: req.userId,
+    });
 
     if (!repository) {
       res.status(404).json({
@@ -73,23 +75,25 @@ export const getRepositoryById = async (
       success: true,
       data: repository,
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Failed to fetch repository",
-      error,
     });
   }
 };
 
 // Update Repository
 export const updateRepository = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const repository = await Repository.findByIdAndUpdate(
-      req.params.id,
+    const repository = await Repository.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        owner: req.userId,
+      },
       req.body,
       {
         new: true,
@@ -100,7 +104,7 @@ export const updateRepository = async (
     if (!repository) {
       res.status(404).json({
         success: false,
-        message: "Repository not found",
+        message: "Repository not found or access denied",
       });
       return;
     }
@@ -109,27 +113,29 @@ export const updateRepository = async (
       success: true,
       data: repository,
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Failed to update repository",
-      error,
     });
   }
 };
 
 // Delete Repository
 export const deleteRepository = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const repository = await Repository.findByIdAndDelete(req.params.id);
+    const repository = await Repository.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.userId,
+    });
 
     if (!repository) {
       res.status(404).json({
         success: false,
-        message: "Repository not found",
+        message: "Repository not found or access denied",
       });
       return;
     }
@@ -138,11 +144,10 @@ export const deleteRepository = async (
       success: true,
       message: "Repository deleted successfully",
     });
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Failed to delete repository",
-      error,
     });
   }
 };
