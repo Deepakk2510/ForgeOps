@@ -8,6 +8,7 @@ import RepositoryDetailsPage from "@/pages/repositories/RepositoryDetailsPage";
 import RepositorySettingsPage from "@/pages/repositories/RepositorySettingsPage";
 
 import IssuesPage from "@/pages/issues/IssuesPage";
+import PullRequestsPage from "@/pages/pull-requests/PullRequestsPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -85,6 +86,11 @@ export default function AppRouter() {
           <Route
             path="/repositories/:repositoryId/issues"
             element={<IssuesPage />}
+          />
+
+          <Route
+            path="/repositories/:repositoryId/pull-requests"
+            element={<PullRequestsPage />}
           />
         </Route>
 

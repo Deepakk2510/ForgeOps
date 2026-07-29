@@ -1,4 +1,6 @@
 import { useState } from "react";
+import type { KeyboardEvent, MouseEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   FolderGit2,
@@ -28,6 +30,7 @@ export default function RepositoryRow({
 }: RepositoryRowProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -52,6 +55,21 @@ export default function RepositoryRow({
 
   const lastCommit = "Just now";
 
+  const openRepository = () => {
+    navigate(`/repositories/${repository._id}`);
+  };
+
+  const stopRowNavigation = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+  };
+
+  const handleRowKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openRepository();
+    }
+  };
+
   const statusColor = {
     Active:
       "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
@@ -65,7 +83,13 @@ export default function RepositoryRow({
 
   return (
     <>
-      <div className="flex items-center justify-between rounded-xl border p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-muted/50 hover:shadow-lg">
+      <div
+        role="link"
+        tabIndex={0}
+        onClick={openRepository}
+        onKeyDown={handleRowKeyDown}
+        className="flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all duration-300 hover:-translate-y-1 hover:bg-muted/50 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
 
         <div className="flex items-center gap-4">
 
@@ -88,9 +112,10 @@ export default function RepositoryRow({
         <div className="flex items-center gap-6">
 
           <button
-            onClick={() =>
-              starMutation.mutate()
-            }
+            onClick={(event) => {
+              stopRowNavigation(event);
+              starMutation.mutate();
+            }}
             className="flex items-center gap-2 text-sm transition hover:scale-105"
           >
             <Star
@@ -118,7 +143,10 @@ export default function RepositoryRow({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setEditOpen(true)}
+            onClick={(event) => {
+              stopRowNavigation(event);
+              setEditOpen(true);
+            }}
           >
             <Pencil className="h-4 w-4" />
           </Button>
@@ -126,7 +154,10 @@ export default function RepositoryRow({
           <Button
             variant="destructive"
             size="icon"
-            onClick={() => setDeleteOpen(true)}
+            onClick={(event) => {
+              stopRowNavigation(event);
+              setDeleteOpen(true);
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

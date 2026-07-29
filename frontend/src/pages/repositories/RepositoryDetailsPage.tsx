@@ -52,6 +52,12 @@ export default function RepositoryDetailsPage() {
             </Button>
           </Link>
 
+          <Link to={`/repositories/${repository._id}/pull-requests`}>
+            <Button variant="outline">
+              Pull Requests ({repository.pullRequests})
+            </Button>
+          </Link>
+
           <Link
             to={`/repositories/${repository._id}/settings`}
           >
