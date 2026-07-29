@@ -11,6 +11,7 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import { useAuth } from "@/contexts/AuthContext";
+import RepositorySettingsPage from "@/pages/repositories/RepositorySettingsPage";
 
 function PublicRoute({
   children,
@@ -66,6 +67,11 @@ export default function AppRouter() {
         <Route
           path="*"
           element={<Navigate to="/" replace />}
+        />
+
+        <Route
+          path="/repositories/:id/settings"
+          element={<RepositorySettingsPage />}
         />
       </Routes>
     </BrowserRouter>

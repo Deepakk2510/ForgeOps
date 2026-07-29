@@ -1,3 +1,14 @@
+import {
+  CalendarDays,
+  Globe,
+  GitBranch,
+  ShieldCheck,
+  AlertCircle,
+  GitPullRequest,
+  FileCode2,
+  Activity,
+} from "lucide-react";
+
 import type { Repository } from "@/types/repository";
 
 interface Props {
@@ -7,72 +18,108 @@ interface Props {
 export default function RepositoryInfo({
   repository,
 }: Props) {
+  const infoItems = [
+    {
+      icon: <FileCode2 className="h-5 w-5" />,
+      label: "Language",
+      value: repository.language,
+    },
+    {
+      icon: <GitBranch className="h-5 w-5" />,
+      label: "Default Branch",
+      value: repository.defaultBranch,
+    },
+    {
+      icon: <ShieldCheck className="h-5 w-5" />,
+      label: "Visibility",
+      value: repository.visibility,
+    },
+    {
+      icon: <Activity className="h-5 w-5" />,
+      label: "Status",
+      value: repository.status,
+    },
+    {
+      icon: <AlertCircle className="h-5 w-5" />,
+      label: "Open Issues",
+      value: repository.openIssues,
+    },
+    {
+      icon: <GitPullRequest className="h-5 w-5" />,
+      label: "Pull Requests",
+      value: repository.pullRequests,
+    },
+    {
+      icon: <CalendarDays className="h-5 w-5" />,
+      label: "Created",
+      value: new Date(
+        repository.createdAt
+      ).toLocaleDateString(),
+    },
+    {
+      icon: <CalendarDays className="h-5 w-5" />,
+      label: "Last Updated",
+      value: new Date(
+        repository.updatedAt
+      ).toLocaleDateString(),
+    },
+    {
+      icon: <CalendarDays className="h-5 w-5" />,
+      label: "Last Commit",
+      value: new Date(
+        repository.lastCommitAt
+      ).toLocaleDateString(),
+    },
+  ];
+
   return (
     <div className="rounded-xl border bg-card p-6 shadow-sm">
-      <h2 className="mb-5 text-xl font-semibold">
+      <h2 className="mb-6 text-xl font-semibold">
         Repository Information
       </h2>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Language
-          </p>
+        {infoItems.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-start gap-3 rounded-lg border p-4"
+          >
+            <div className="mt-1 text-muted-foreground">
+              {item.icon}
+            </div>
 
-          <p className="font-medium">
-            {repository.language}
-          </p>
-        </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {item.label}
+              </p>
 
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Visibility
-          </p>
+              <p className="font-medium break-all">
+                {item.value}
+              </p>
+            </div>
+          </div>
+        ))}
 
-          <p className="font-medium">
-            {repository.visibility}
-          </p>
-        </div>
+        {repository.website && (
+          <div className="flex items-start gap-3 rounded-lg border p-4 md:col-span-2">
+            <Globe className="mt-1 h-5 w-5 text-muted-foreground" />
 
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Status
-          </p>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Website
+              </p>
 
-          <p className="font-medium">
-            {repository.status}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Stars
-          </p>
-
-          <p className="font-medium">
-            {repository.stars}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Created
-          </p>
-
-          <p className="font-medium">
-            {new Date(repository.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Last Updated
-          </p>
-
-          <p className="font-medium">
-            {new Date(repository.updatedAt).toLocaleDateString()}
-          </p>
-        </div>
+              <a
+                href={repository.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline break-all"
+              >
+                {repository.website}
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

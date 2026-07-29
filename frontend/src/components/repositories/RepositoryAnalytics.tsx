@@ -20,7 +20,7 @@ export default function RepositoryAnalytics({
       <div className="grid gap-8 lg:grid-cols-2">
         <RepositoryGrowthChart />
 
-        <RepositoryTimeline />
+        <RepositoryTimeline repository = {repository}/>
       </div>
 
       {/* Future Analytics */}

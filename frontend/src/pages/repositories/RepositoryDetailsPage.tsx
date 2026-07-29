@@ -1,14 +1,17 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+
+import { Button } from "@/components/ui/button";
 
 import RepositoryHeader from "@/components/repositories/RepositoryHeader";
 import RepositoryInfo from "@/components/repositories/RepositoryInfo";
 import RepositoryAnalytics from "@/components/repositories/RepositoryAnalytics";
+import READMECard from "@/components/repositories/READMECard";
 
 import { repositoryService } from "@/services/repository.service";
 
 export default function RepositoryDetailsPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["repository", id],
@@ -18,7 +21,7 @@ export default function RepositoryDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8">
+      <div className="flex items-center justify-center py-20 text-muted-foreground">
         Loading repository...
       </div>
     );
@@ -26,7 +29,7 @@ export default function RepositoryDetailsPage() {
 
   if (error || !data) {
     return (
-      <div className="p-8 text-red-500">
+      <div className="flex items-center justify-center py-20 text-red-500">
         Failed to load repository.
       </div>
     );
@@ -36,17 +39,32 @@ export default function RepositoryDetailsPage() {
 
   return (
     <div className="space-y-8">
-      <RepositoryHeader
-        repository={repository}
-      />
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <RepositoryHeader repository={repository} />
 
-      <RepositoryInfo
-        repository={repository}
-      />
+        <Link to={`/repositories/${repository._id}/settings`}>
+          <Button variant="outline">
+            Settings
+          </Button>
+        </Link>
+      </div>
 
-      <RepositoryAnalytics
-        repository={repository}
-      />
+      {/* Repository Information */}
+      <RepositoryInfo repository={repository} />
+
+      {/* README */}
+      <div className="grid gap-8 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <READMECard
+            repositoryId={repository._id}
+            readme={repository.readme}
+          />
+        </div>
+      </div>
+
+      {/* Analytics */}
+      <RepositoryAnalytics repository={repository} />
     </div>
   );
 }

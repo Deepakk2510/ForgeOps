@@ -1,8 +1,10 @@
 import {
   Star,
-  Lock,
-  Globe,
-  Code2,
+  GitFork,
+  AlertCircle,
+  GitPullRequest,
+  GitBranch,
+  Activity,
 } from "lucide-react";
 
 import type { Repository } from "@/types/repository";
@@ -14,57 +16,67 @@ interface Props {
 export default function RepositoryStats({
   repository,
 }: Props) {
+  const stats = [
+    {
+      title: "Stars",
+      value: repository.stars,
+      icon: Star,
+    },
+    {
+      title: "Forks",
+      value: repository.forks,
+      icon: GitFork,
+    },
+    {
+      title: "Open Issues",
+      value: repository.openIssues,
+      icon: AlertCircle,
+    },
+    {
+      title: "Pull Requests",
+      value: repository.pullRequests,
+      icon: GitPullRequest,
+    },
+    {
+      title: "Default Branch",
+      value: repository.defaultBranch,
+      icon: GitBranch,
+    },
+    {
+      title: "Status",
+      value: repository.status,
+      icon: Activity,
+    },
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {stats.map((stat) => {
+        const Icon = stat.icon;
 
-      <div className="rounded-xl border p-5">
-        <Star className="mb-3 h-6 w-6 text-yellow-500" />
-        <p className="text-sm text-muted-foreground">
-          Stars
-        </p>
-        <h3 className="text-2xl font-bold">
-          {repository.stars}
-        </h3>
-      </div>
+        return (
+          <div
+            key={stat.title}
+            className="rounded-xl border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  {stat.title}
+                </p>
 
-      <div className="rounded-xl border p-5">
-        {repository.visibility === "Public" ? (
-          <Globe className="mb-3 h-6 w-6" />
-        ) : (
-          <Lock className="mb-3 h-6 w-6" />
-        )}
+                <h3 className="mt-2 text-3xl font-bold">
+                  {stat.value}
+                </h3>
+              </div>
 
-        <p className="text-sm text-muted-foreground">
-          Visibility
-        </p>
-
-        <h3 className="text-xl font-bold">
-          {repository.visibility}
-        </h3>
-      </div>
-
-      <div className="rounded-xl border p-5">
-        <Code2 className="mb-3 h-6 w-6" />
-
-        <p className="text-sm text-muted-foreground">
-          Language
-        </p>
-
-        <h3 className="text-xl font-bold">
-          {repository.language}
-        </h3>
-      </div>
-
-      <div className="rounded-xl border p-5">
-        <p className="text-sm text-muted-foreground">
-          Status
-        </p>
-
-        <h3 className="text-xl font-bold">
-          {repository.status}
-        </h3>
-      </div>
-
+              <div className="rounded-full bg-muted p-3">
+                <Icon className="h-6 w-6" />
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
