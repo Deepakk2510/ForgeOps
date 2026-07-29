@@ -8,32 +8,38 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const menu = [
   {
     title: "Dashboard",
+    path: "/",
     icon: LayoutDashboard,
   },
   {
     title: "Repositories",
+    path: "/repositories",
     icon: FolderGit2,
   },
   {
     title: "AI Chat",
+    path: "/ai",
     icon: Bot,
   },
   {
     title: "Reports",
+    path: "/reports",
     icon: FileText,
   },
   {
     title: "Analytics",
+    path: "/analytics",
     icon: BarChart3,
   },
   {
     title: "Settings",
+    path: "/settings",
     icon: Settings,
   },
 ];
@@ -42,17 +48,17 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  function handleLogout() {
-    logout();
-    navigate("/login");
-  }
-
   const initials =
     user?.name
       ?.split(" ")
       .map((word) => word[0])
       .join("")
       .toUpperCase() || "U";
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-background">
@@ -69,18 +75,25 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           return (
-            <button
+            <NavLink
               key={item.title}
-              className="mb-2 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition hover:bg-muted hover:text-primary"
+              to={item.path}
+              className={({ isActive }) =>
+                `mb-2 flex items-center gap-3 rounded-lg px-4 py-3 transition ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted hover:text-primary"
+                }`
+              }
             >
               <Icon size={20} />
               <span>{item.title}</span>
-            </button>
+            </NavLink>
           );
         })}
       </nav>
 
-      {/* User Section */}
+      {/* User */}
       <div className="border-t p-4">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">

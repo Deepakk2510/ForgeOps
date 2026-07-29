@@ -23,6 +23,10 @@ interface RepositoryFormData {
   language: string;
   visibility: "Public" | "Private";
   status: "Active" | "Building" | "Archived";
+
+  topics: string;
+  license: string;
+  website: string;
 }
 
 export default function CreateRepositoryDialog() {
@@ -40,6 +44,9 @@ export default function CreateRepositoryDialog() {
       visibility: "Public",
       status: "Active",
       language: "",
+      topics: "",
+      license: "MIT",
+      website: "",
     },
   });
 
@@ -78,7 +85,10 @@ export default function CreateRepositoryDialog() {
 
     mutation.mutate({
       ...data,
-      stars: 0,
+      topics: data.topics
+        .split(",")
+        .map((topic) => topic.trim())
+        .filter(Boolean),
     });
   };
 
@@ -133,6 +143,43 @@ export default function CreateRepositoryDialog() {
               })}
             />
 
+            <div>
+                <Label>Topics</Label>
+
+                <Input
+                     placeholder="react, typescript, mongodb"
+                    {...register("topics")}
+                />
+
+                <p className="text-xs text-muted-foreground mt-1">
+                    Separate topics with commas.
+                </p>
+            </div>
+
+            <div>
+              <Label>License</Label>
+
+              <select
+                className="w-full rounded-md border p-2"
+                {...register("license")}
+              >
+                <option value="MIT">MIT</option>
+                <option value="Apache-2.0">Apache 2.0</option>
+                <option value="GPL-3.0">GPL 3.0</option>
+                <option value="BSD-3-Clause">BSD 3-Clause</option>
+                <option value="None">None</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>Website</Label>
+
+              <Input
+                placeholder="https://example.com"
+                {...register("website")}
+              />
+            </div>
+            
             {errors.language && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.language.message}

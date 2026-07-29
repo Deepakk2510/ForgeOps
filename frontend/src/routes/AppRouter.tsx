@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "@/layouts/MainLayout";
 
 import DashboardPage from "@/pages/dashboard/DashboardPage";
+import RepositoriesPage from "@/pages/repositories/RepositoriesPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -11,7 +12,11 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import { useAuth } from "@/contexts/AuthContext";
 
-function PublicRoute({ children }: { children: React.ReactNode }) {
+function PublicRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
@@ -51,6 +56,11 @@ export default function AppRouter() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
+
+          <Route
+            path="/repositories"
+            element={<RepositoriesPage />}
+          />
         </Route>
 
         <Route

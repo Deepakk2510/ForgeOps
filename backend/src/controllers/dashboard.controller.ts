@@ -23,7 +23,7 @@ export const getDashboard = async (
       languageCount[repo.language] =
         (languageCount[repo.language] || 0) + 1;
 
-      stars += repo.stars;
+      stars += repo.starredBy.length;
 
       if (repo.visibility === "Public")
         publicRepositories++;

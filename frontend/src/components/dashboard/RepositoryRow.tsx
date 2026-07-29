@@ -8,7 +8,11 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { Button } from "@/components/ui/button";
+
+import { repositoryService } from "@/services/repository.service";
 
 import type { Repository } from "@/types/repository";
 
@@ -25,11 +29,25 @@ export default function RepositoryRow({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const queryClient = useQueryClient();
+
+  const starMutation = useMutation({
+    mutationFn: () =>
+      repositoryService.toggleStar(repository._id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["repositories"],
+      });
+    },
+  });
+
   const {
     name,
     language,
     stars,
     status,
+    isStarred,
   } = repository;
 
   const lastCommit = "Just now";
@@ -69,10 +87,22 @@ export default function RepositoryRow({
 
         <div className="flex items-center gap-6">
 
-          <div className="flex items-center gap-2 text-sm">
-            <Star className="h-4 w-4" />
+          <button
+            onClick={() =>
+              starMutation.mutate()
+            }
+            className="flex items-center gap-2 text-sm transition hover:scale-105"
+          >
+            <Star
+              className={`h-4 w-4 ${
+                isStarred
+                  ? "fill-yellow-400 text-yellow-400"
+                  : ""
+              }`}
+            />
+
             {stars}
-          </div>
+          </button>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock3 className="h-4 w-4" />
