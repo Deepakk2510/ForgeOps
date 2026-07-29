@@ -43,11 +43,23 @@ export default function RepositoryDetailsPage() {
       <div className="flex items-start justify-between">
         <RepositoryHeader repository={repository} />
 
-        <Link to={`/repositories/${repository._id}/settings`}>
-          <Button variant="outline">
-            Settings
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to={`/repositories/${repository._id}/issues`}
+          >
+            <Button variant="outline">
+              Issues ({repository.openIssues})
+            </Button>
+          </Link>
+
+          <Link
+            to={`/repositories/${repository._id}/settings`}
+          >
+            <Button variant="outline">
+              Settings
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Repository Information */}

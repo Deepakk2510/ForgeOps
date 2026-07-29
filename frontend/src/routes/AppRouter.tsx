@@ -4,14 +4,16 @@ import MainLayout from "@/layouts/MainLayout";
 
 import DashboardPage from "@/pages/dashboard/DashboardPage";
 import RepositoriesPage from "@/pages/repositories/RepositoriesPage";
+import RepositoryDetailsPage from "@/pages/repositories/RepositoryDetailsPage";
+import RepositorySettingsPage from "@/pages/repositories/RepositorySettingsPage";
+
+import IssuesPage from "@/pages/issues/IssuesPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-
 import { useAuth } from "@/contexts/AuthContext";
-import RepositorySettingsPage from "@/pages/repositories/RepositorySettingsPage";
 
 function PublicRoute({
   children,
@@ -31,6 +33,8 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Routes */}
+
         <Route
           path="/login"
           element={
@@ -49,6 +53,8 @@ export default function AppRouter() {
           }
         />
 
+        {/* Protected Routes */}
+
         <Route
           element={
             <ProtectedRoute>
@@ -56,22 +62,37 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route path="/" element={<DashboardPage />} />
+          <Route
+            path="/"
+            element={<DashboardPage />}
+          />
 
           <Route
             path="/repositories"
             element={<RepositoriesPage />}
           />
+
+          <Route
+            path="/repositories/:id"
+            element={<RepositoryDetailsPage />}
+          />
+
+          <Route
+            path="/repositories/:id/settings"
+            element={<RepositorySettingsPage />}
+          />
+
+          <Route
+            path="/repositories/:repositoryId/issues"
+            element={<IssuesPage />}
+          />
         </Route>
+
+        {/* Fallback */}
 
         <Route
           path="*"
           element={<Navigate to="/" replace />}
-        />
-
-        <Route
-          path="/repositories/:id/settings"
-          element={<RepositorySettingsPage />}
         />
       </Routes>
     </BrowserRouter>
