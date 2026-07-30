@@ -11,6 +11,7 @@ import IssuesPage from "@/pages/issues/IssuesPage";
 import PullRequestsPage from "@/pages/pull-requests/PullRequestsPage";
 import VersionControlPage from "@/pages/version-control/VersionControlPage";
 import InvitationsPage from "@/pages/user/InvitationsPage";
+import NotificationsPage from "@/pages/user/NotificationsPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -73,6 +74,11 @@ export default function AppRouter() {
           <Route
             path="/invitations"
             element={<InvitationsPage />}
+          />
+
+          <Route
+            path="/notifications"
+            element={<NotificationsPage />}
           />
 
           <Route

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Repository } from "../models/Repository.js";
 import { User } from "../models/User.js";
 import { Collaborator } from "../models/Collaborator.js";
+import { Notification } from "../models/Notification.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
 
 // Ensure the requester has Admin or Owner rights
@@ -55,6 +56,16 @@ export const addCollaborator = async (req: AuthRequest, res: Response) => {
       role: role || "Read",
       status: "Pending",
     });
+
+    const notification = new Notification({
+      user: invitee._id,
+      type: "INVITATION",
+      title: "Repository Invitation",
+      message: `You have been invited to collaborate on ${repo?.name}`,
+      link: "/invitations",
+    });
+    
+    await notification.save();
 
     // Populate user info for frontend immediate response
     await collaborator.populate("user", "name email");

@@ -1,6 +1,7 @@
-import { Bell, Search, UserCircle2, Inbox } from "lucide-react";
+import { Search, UserCircle2, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
+import { NotificationBell } from "./NotificationBell";
 
 export default function Navbar() {
   return (
@@ -22,15 +23,13 @@ export default function Navbar() {
       {/* Right */}
 
       <div className="flex items-center gap-5">
-          <ThemeToggle />
+        <ThemeToggle />
 
         <Link to="/invitations" className="hover:text-primary transition-colors">
           <Inbox size={20} />
         </Link>
 
-        <button>
-          <Bell size={20} />
-        </button>
+        <NotificationBell />
 
         <button>
           <UserCircle2 size={28} />

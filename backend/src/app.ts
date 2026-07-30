@@ -10,6 +10,7 @@ import versionControlRoutes from "./routes/version-control.routes.js";
 import fileRoutes from "./routes/file.routes.js";
 import collaboratorRoutes from "./routes/collaborator.routes.js";
 import invitationRoutes from "./routes/invitation.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
 
@@ -23,8 +24,9 @@ app.use("/api/issues", issueRoutes);
 app.use("/api/pull-requests", pullRequestRoutes);
 app.use("/api/version-control", versionControlRoutes);
 app.use("/api/repositories/:repositoryId/files", fileRoutes);
-app.use("/api/repositories/:repositoryId/collaborators", collaboratorRoutes);
+app.use("/api/repositories", collaboratorRoutes);
 app.use("/api/invitations", invitationRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.get("/", (_req, res) => {
   res.json({
