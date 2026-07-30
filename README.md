@@ -55,6 +55,8 @@ The brief demands a scalable, responsive, and secure platform that ships real re
 
 ## Architecture Overview
 
+![Architecture](docs/architecture.jpg)
+
 ForgeOps utilizes a standard 3-tier containerized architecture:
 
 1. **Frontend (React + Vite + TypeScript)**
