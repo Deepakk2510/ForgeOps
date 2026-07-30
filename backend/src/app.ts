@@ -8,6 +8,8 @@ import issueRoutes from "./routes/issue.routes.js";
 import pullRequestRoutes from "./routes/pull-request.routes.js";
 import versionControlRoutes from "./routes/version-control.routes.js";
 import fileRoutes from "./routes/file.routes.js";
+import collaboratorRoutes from "./routes/collaborator.routes.js";
+import invitationRoutes from "./routes/invitation.routes.js";
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.use("/api/issues", issueRoutes);
 app.use("/api/pull-requests", pullRequestRoutes);
 app.use("/api/version-control", versionControlRoutes);
 app.use("/api/repositories/:repositoryId/files", fileRoutes);
+app.use("/api/repositories/:repositoryId/collaborators", collaboratorRoutes);
+app.use("/api/invitations", invitationRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

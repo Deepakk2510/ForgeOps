@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import RepositorySettingsForm from "@/components/repositories/settings/RepositorySettingsForm";
 import DangerZone from "@/components/repositories/settings/DangerZone";
+import CollaboratorsSettings from "@/components/repositories/settings/CollaboratorsSettings";
 
 import {
   repositoryService,
@@ -28,6 +29,8 @@ export default function RepositorySettingsPage() {
   const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState<"general" | "collaborators">("general");
 
   const {
     register,
@@ -113,35 +116,60 @@ export default function RepositorySettingsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-8">
-      <h1 className="text-3xl font-bold">
-        Repository Settings
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">
+          Repository Settings
+        </h1>
+      </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-8"
-          >
-            <RepositorySettingsForm
-              register={register}
-            />
+      <div className="flex border-b">
+        <button
+          onClick={() => setActiveTab("general")}
+          className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === "general" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          General
+        </button>
+        <button
+          onClick={() => setActiveTab("collaborators")}
+          className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === "collaborators" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          Collaborators
+        </button>
+      </div>
 
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
+      {activeTab === "general" && (
+        <div className="space-y-8">
+          <Card>
+            <CardContent className="pt-6">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-8"
               >
-                {isSubmitting
-                  ? "Saving..."
-                  : "Save Changes"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                <RepositorySettingsForm
+                  register={register}
+                />
 
-      <DangerZone onDelete={handleDelete} />
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? "Saving..."
+                      : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <DangerZone onDelete={handleDelete} />
+        </div>
+      )}
+
+      {activeTab === "collaborators" && id && (
+        <CollaboratorsSettings repositoryId={id} />
+      )}
     </div>
   );
 }
