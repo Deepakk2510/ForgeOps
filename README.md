@@ -9,11 +9,11 @@ ForgeOps is a robust full-stack application built on the **MERN** stack (MongoDB
 ## Screenshots
 
 ### Main Dashboard
-![Main Dashboard](docs/dashboard.png)
+![Main Dashboard](docs/dashboard.png?v=2)
 *The ForgeOps unified dashboard displaying active repositories, global metrics, and repository languages.*
 
 ### Repositories Management
-![Repositories Management](docs/repositories.png)
+![Repositories Management](docs/repositories.png?v=2)
 *The repository view where users can import projects directly from GitHub and manage configurations.*
 
 ---
