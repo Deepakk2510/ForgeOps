@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 
 import repositoryRoutes from "./routes/repository.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -15,6 +17,16 @@ import webhookRoutes from "./routes/webhook.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 
 const app = express();
+
+app.use(helmet());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 app.use(cors());
 app.use(express.json());
