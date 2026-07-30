@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { createBranch, createCommit, deleteBranch, getBranches, getCommit, getCommits, switchBranch } from "../controllers/version-control.controller.js";
+const router = Router();
+router.get("/branches/repository/:repositoryId", authenticate, getBranches);
+router.post("/branches", authenticate, createBranch);
+router.post("/branches/:id/switch", authenticate, switchBranch);
+router.delete("/branches/:id", authenticate, deleteBranch);
+router.get("/commits/repository/:repositoryId", authenticate, getCommits);
+router.get("/commits/:id", authenticate, getCommit);
+router.post("/commits", authenticate, createCommit);
+export default router;

@@ -9,6 +9,7 @@ import RepositorySettingsPage from "@/pages/repositories/RepositorySettingsPage"
 
 import IssuesPage from "@/pages/issues/IssuesPage";
 import PullRequestsPage from "@/pages/pull-requests/PullRequestsPage";
+import VersionControlPage from "@/pages/version-control/VersionControlPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -92,6 +93,7 @@ export default function AppRouter() {
             path="/repositories/:repositoryId/pull-requests"
             element={<PullRequestsPage />}
           />
+          <Route path="/repositories/:repositoryId/version-control" element={<VersionControlPage />} />
         </Route>
 
         {/* Fallback */}

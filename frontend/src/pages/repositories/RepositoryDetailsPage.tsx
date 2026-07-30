@@ -58,6 +58,10 @@ export default function RepositoryDetailsPage() {
             </Button>
           </Link>
 
+          <Link to={`/repositories/${repository._id}/version-control`}>
+            <Button variant="outline">Branches</Button>
+          </Link>
+
           <Link
             to={`/repositories/${repository._id}/settings`}
           >
