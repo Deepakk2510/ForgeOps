@@ -7,6 +7,7 @@ import BuildChart from "@/components/dashboard/BuildChart";
 import LanguageChart from "@/components/dashboard/LanguageChart";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import CreateRepositoryDialog from "@/components/repositories/CreateRepositoryDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { dashboardService } from "@/services/dashboard.service";
 
@@ -25,8 +26,26 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[70vh] text-lg font-medium">
-        Loading dashboard...
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-xl" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <Skeleton className="h-80 w-full rounded-xl" />
+            <Skeleton className="h-80 w-full rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-80 w-full rounded-xl" />
+            <Skeleton className="h-[500px] w-full rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }

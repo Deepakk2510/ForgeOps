@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/card";
 
 import RepositoryRow from "./RepositoryRow";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FolderGit2 } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
 import { repositoryService } from "@/services/repository.service";
@@ -50,13 +52,29 @@ export default function RecentRepositories() {
 
       <CardContent className="space-y-4">
         {isLoading ? (
-          <p className="text-muted-foreground">
-            Loading repositories...
-          </p>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center space-x-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : repositories.length === 0 ? (
-          <p className="text-muted-foreground">
-            No repositories found.
-          </p>
+          <div className="flex flex-col items-center justify-center space-y-3 py-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <FolderGit2 className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="font-medium">No repositories yet</p>
+              <p className="text-sm text-muted-foreground">
+                You haven't created any repositories.
+              </p>
+            </div>
+          </div>
         ) : (
           repositories.map((repo) => (
             <RepositoryRow

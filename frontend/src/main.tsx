@@ -15,7 +15,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryProvider>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider attribute="class" defaultTheme="system" storageKey="vite-ui-theme">
         <AuthProvider>
           <App />
           <Toaster richColors position="top-right" />

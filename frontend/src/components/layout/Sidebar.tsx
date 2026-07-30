@@ -44,7 +44,11 @@ const menu = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavClick?: () => void;
+}
+
+export default function Sidebar({ onNavClick }: SidebarProps = {}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -61,7 +65,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-background">
+    <aside className="hidden md:flex h-screen w-64 shrink-0 flex-col border-r bg-background">
       {/* Logo */}
       <div className="border-b p-6">
         <h1 className="text-2xl font-bold text-primary">
@@ -85,6 +89,7 @@ export default function Sidebar() {
                     : "hover:bg-muted hover:text-primary"
                 }`
               }
+              onClick={onNavClick}
             >
               <Icon size={20} />
               <span>{item.title}</span>

@@ -13,6 +13,11 @@ import VersionControlPage from "@/pages/version-control/VersionControlPage";
 import InvitationsPage from "@/pages/user/InvitationsPage";
 import NotificationsPage from "@/pages/user/NotificationsPage";
 
+import AIChatPage from "@/pages/ai/AIChatPage";
+import AnalyticsPage from "@/pages/analytics/AnalyticsPage";
+import SettingsPage from "@/pages/settings/SettingsPage";
+import ReportsPage from "@/pages/reports/ReportsPage";
+
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 
@@ -79,6 +84,26 @@ export default function AppRouter() {
           <Route
             path="/notifications"
             element={<NotificationsPage />}
+          />
+
+          <Route
+            path="/ai"
+            element={<AIChatPage />}
+          />
+
+          <Route
+            path="/analytics"
+            element={<AnalyticsPage />}
+          />
+
+          <Route
+            path="/reports"
+            element={<ReportsPage />}
+          />
+
+          <Route
+            path="/settings"
+            element={<SettingsPage />}
           />
 
           <Route
