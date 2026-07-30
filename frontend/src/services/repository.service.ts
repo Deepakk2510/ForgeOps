@@ -11,6 +11,20 @@ interface SingleRepositoryResponse {
   data: Repository;
 }
 
+export interface GithubRepository {
+  id: number;
+  name: string;
+  description: string;
+  language: string;
+  visibility: "Public" | "Private";
+  html_url: string;
+}
+
+export interface GithubRepositoryResponse {
+  success: boolean;
+  data: GithubRepository[];
+}
+
 export interface RepositoryPayload {
   name: string;
   description: string;
@@ -26,6 +40,11 @@ export interface RepositoryPayload {
 export const repositoryService = {
   getAll: async (): Promise<RepositoryResponse> => {
     const response = await api.get<RepositoryResponse>("/repositories");
+    return response.data;
+  },
+
+  getGithubRepositories: async (): Promise<GithubRepositoryResponse> => {
+    const response = await api.get<GithubRepositoryResponse>("/repositories/github");
     return response.data;
   },
 

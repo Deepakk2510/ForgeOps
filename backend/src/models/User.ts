@@ -18,7 +18,18 @@ const userSchema = new Schema(
 
     password: {
       type: String,
-      required: true,
+      required: false, // Optional for OAuth users
+    },
+
+    githubId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows null/undefined values without throwing unique errors
+    },
+
+    githubAccessToken: {
+      type: String,
+      select: false,
     },
   },
   {

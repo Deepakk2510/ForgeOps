@@ -12,11 +12,11 @@ export function NotificationBell() {
   });
 
   return (
-    <Button variant="ghost" size="icon" className="relative" asChild>
+    <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white hover:bg-white/10" asChild>
       <Link to="/notifications">
-        <Bell className="h-5 w-5" />
+        <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+          <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}

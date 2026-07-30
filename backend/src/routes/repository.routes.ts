@@ -8,6 +8,7 @@ import {
   deleteRepository,
   toggleStarRepository,
   updateReadme,
+  getGithubRepositories,
 } from "../controllers/repository.controller.js";
 
 import { authenticate } from "../middleware/auth.middleware.js";
@@ -17,6 +18,8 @@ const router = Router();
 router.post("/", authenticate, createRepository);
 
 router.get("/", authenticate, getRepositories);
+
+router.get("/github", authenticate, getGithubRepositories);
 
 router.get("/:id", authenticate, getRepositoryById);
 

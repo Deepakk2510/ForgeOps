@@ -10,14 +10,15 @@ export default function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
+      className="text-gray-300 hover:text-white hover:bg-white/10"
       onClick={() =>
         setTheme(theme === "dark" ? "light" : "dark")
       }
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-4 w-4" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-4 w-4" />
       )}
     </Button>
   );

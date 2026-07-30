@@ -20,6 +20,7 @@ import ReportsPage from "@/pages/reports/ReportsPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
+import GitHubCallbackPage from "@/pages/auth/GitHubCallbackPage";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,6 +59,15 @@ export default function AppRouter() {
           element={
             <PublicRoute>
               <RegisterPage />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/auth/github/callback"
+          element={
+            <PublicRoute>
+              <GitHubCallbackPage />
             </PublicRoute>
           }
         />

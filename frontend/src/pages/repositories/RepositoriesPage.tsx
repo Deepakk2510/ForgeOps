@@ -1,5 +1,6 @@
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import CreateRepositoryDialog from "@/components/repositories/CreateRepositoryDialog";
+import ImportGithubDialog from "@/components/repositories/ImportGithubDialog";
 import RepositoryExplorer from "@/components/repositories/RepositoryExplorer";
 
 export default function RepositoriesPage() {
@@ -11,7 +12,10 @@ export default function RepositoriesPage() {
           subtitle="Create, manage and organize your repositories."
         />
 
-        <CreateRepositoryDialog />
+        <div className="flex items-center gap-4">
+          <ImportGithubDialog />
+          <CreateRepositoryDialog />
+        </div>
       </div>
 
       <RepositoryExplorer />

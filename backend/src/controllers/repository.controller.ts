@@ -1,6 +1,8 @@
 import { Response } from "express";
 import { Repository } from "../models/Repository.js";
+import { User } from "../models/User.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
+import axios from "axios";
 
 // ----------------------------
 // Create Repository
@@ -35,6 +37,53 @@ export const createRepository = async (
 // ----------------------------
 // Get All Repositories
 // ----------------------------
+
+export const getGithubRepositories = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const user: any = await User.findById(req.userId).select("+githubAccessToken");
+    if (!user || !user.githubAccessToken) {
+      res.status(400).json({
+        success: false,
+        message: "No GitHub access token found. Please log in with GitHub again.",
+      });
+      return;
+    }
+
+    const response = await axios.get("https://api.github.com/user/repos", {
+      headers: {
+        Authorization: `Bearer ${user.githubAccessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+      params: {
+        sort: "updated",
+        per_page: 100,
+      },
+    });
+
+    const githubRepos = response.data.map((repo: any) => ({
+      id: repo.id,
+      name: repo.name,
+      description: repo.description || "",
+      language: repo.language || "Unknown",
+      visibility: repo.private ? "Private" : "Public",
+      html_url: repo.html_url,
+    }));
+
+    res.json({
+      success: true,
+      data: githubRepos,
+    });
+  } catch (error: any) {
+    console.error("GitHub API Error:", error.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch GitHub repositories",
+    });
+  }
+};
 
 export const getRepositories = async (
   req: AuthRequest,

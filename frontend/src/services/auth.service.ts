@@ -21,4 +21,8 @@ export const authService = {
     const response = await api.post("/auth/login", data);
     return response.data;
   },
+  async githubLogin(code: string) {
+    const response = await api.post("/auth/github", { code });
+    return response.data;
+  },
 };
