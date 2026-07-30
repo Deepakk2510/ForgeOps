@@ -8,10 +8,13 @@ ForgeOps is a robust full-stack application built on the **MERN** stack (MongoDB
 
 ## Screenshots
 
-*(Add your screenshots here)*
-- **Hero Dashboard**
-- **Repository View & AI Chat**
-- **Issue Tracking & Kanban**
+### Main Dashboard
+![Main Dashboard](docs/dashboard.png)
+*The ForgeOps unified dashboard displaying active repositories, global metrics, and repository languages.*
+
+### Repositories Management
+![Repositories Management](docs/repositories.png)
+*The repository view where users can import projects directly from GitHub and manage configurations.*
 
 ---
 
@@ -74,6 +77,77 @@ ForgeOps utilizes a standard 3-tier containerized architecture:
 4. **Proxy (Nginx)**
    - **Role:** API Gateway & Static File Server.
    - **Tech:** Routes `/api` traffic to the Node backend and serves the compiled React static files on port `80`.
+
+### High-Level Architecture Diagram
+
+```mermaid
+graph TD
+    %% Define Styles
+    classDef client fill:#1E293B,stroke:#38BDF8,stroke-width:2px,color:#F8FAFC
+    classDef server fill:#1E293B,stroke:#A78BFA,stroke-width:2px,color:#F8FAFC
+    classDef database fill:#1E293B,stroke:#4ADE80,stroke-width:2px,color:#F8FAFC
+    classDef external fill:#1E293B,stroke:#F472B6,stroke-width:2px,color:#F8FAFC
+
+    %% Nodes
+    subgraph Frontend [Client-Side]
+        React[React SPA + Vite]:::client
+        Tailwind[Tailwind CSS UI]:::client
+    end
+
+    subgraph Backend [Server-Side]
+        Express[Node.js + Express API]:::server
+        JWT[JWT Authentication]:::server
+    end
+
+    subgraph Database [Data Layer]
+        MongoDB[(MongoDB Atlas)]:::database
+        Mongoose[Mongoose ODM]:::database
+    end
+
+    subgraph External [Third-Party Services]
+        GitHubAPI[GitHub OAuth & API]:::external
+    end
+
+    %% Connections
+    React <-->|REST API over HTTP| Express
+    Express -->|Data Models| Mongoose
+    Mongoose <-->|MongoDB Protocol| MongoDB
+    Express <-->|OAuth2 & API Requests| GitHubAPI
+    React -->|OAuth Callback| GitHubAPI
+```
+
+### GitHub OAuth & Repository Import Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant GitHub
+    participant MongoDB
+
+    %% Login Flow
+    User->>Frontend: Click "Login with GitHub"
+    Frontend->>GitHub: Redirect to GitHub Authorization URL
+    GitHub-->>Frontend: Redirect back with Auth Code
+    Frontend->>Backend: POST /api/auth/github (Auth Code)
+    Backend->>GitHub: Exchange Code for Access Token
+    GitHub-->>Backend: Access Token
+    Backend->>GitHub: Fetch User Profile & Emails
+    GitHub-->>Backend: Profile & Email Data
+    Backend->>MongoDB: Find or Create User (Store Access Token)
+    Backend-->>Frontend: JWT Session Token
+    Frontend-->>User: Logged In Successfully
+
+    %% Repository Import Flow
+    User->>Frontend: Click "Import from GitHub"
+    Frontend->>Backend: GET /api/repositories/github (with JWT)
+    Backend->>MongoDB: Fetch User's GitHub Access Token
+    Backend->>GitHub: GET /user/repos (with Access Token)
+    GitHub-->>Backend: List of Repositories
+    Backend-->>Frontend: Mapped Repository Data
+    Frontend-->>User: Display Repositories in Dialog
+```
 
 ---
 
