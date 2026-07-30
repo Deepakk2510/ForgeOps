@@ -2,6 +2,7 @@ import { Response } from "express";
 
 import { Issue } from "../models/Issue.js";
 import { Repository } from "../models/Repository.js";
+import { triggerWebhooks } from "../services/webhook.dispatcher.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
 
 // -------------------------------------
@@ -37,6 +38,9 @@ export const createIssue = async (
 
     repository.openIssues += 1;
     await repository.save();
+
+    await issue.populate("creator", "name email");
+    triggerWebhooks(repository._id, "issue", issue);
 
     res.status(201).json({
       success: true,

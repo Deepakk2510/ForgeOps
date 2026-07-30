@@ -3,11 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import RepositorySettingsForm from "@/components/repositories/settings/RepositorySettingsForm";
 import DangerZone from "@/components/repositories/settings/DangerZone";
 import CollaboratorsSettings from "@/components/repositories/settings/CollaboratorsSettings";
+import { WebhooksSettings } from "@/components/repositories/settings/WebhooksSettings";
 
 import {
   repositoryService,
@@ -30,7 +32,7 @@ export default function RepositorySettingsPage() {
 
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<"general" | "collaborators">("general");
+  const [activeTab, setActiveTab] = useState<string>("general");
 
   const {
     register,
@@ -122,54 +124,71 @@ export default function RepositorySettingsPage() {
         </h1>
       </div>
 
-      <div className="flex border-b">
-        <button
-          onClick={() => setActiveTab("general")}
-          className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === "general" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-        >
-          General
-        </button>
-        <button
-          onClick={() => setActiveTab("collaborators")}
-          className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === "collaborators" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-        >
-          Collaborators
-        </button>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="collaborators">Collaborators</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+        </TabsList>
 
-      {activeTab === "general" && (
-        <div className="space-y-8">
+        <TabsContent value="general">
+          <div className="space-y-8">
+            <Card>
+              <CardContent className="pt-6">
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
+                  <RepositorySettingsForm
+                    register={register}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting
+                        ? "Saving..."
+                        : "Save Changes"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <DangerZone onDelete={handleDelete} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="collaborators">
           <Card>
-            <CardContent className="pt-6">
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-8"
-              >
-                <RepositorySettingsForm
-                  register={register}
-                />
-
-                <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? "Saving..."
-                      : "Save Changes"}
-                  </Button>
-                </div>
-              </form>
+            <CardHeader>
+              <CardTitle>Manage Collaborators</CardTitle>
+              <CardDescription>
+                Invite users and manage their access levels.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {id && <CollaboratorsSettings repositoryId={id} />}
             </CardContent>
           </Card>
+        </TabsContent>
 
-          <DangerZone onDelete={handleDelete} />
-        </div>
-      )}
-
-      {activeTab === "collaborators" && id && (
-        <CollaboratorsSettings repositoryId={id} />
-      )}
+        <TabsContent value="webhooks">
+          <Card>
+            <CardHeader>
+              <CardTitle>Webhooks</CardTitle>
+              <CardDescription>
+                Manage automated events and triggers.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {id && <WebhooksSettings repositoryId={id} />}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

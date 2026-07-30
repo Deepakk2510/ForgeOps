@@ -2,6 +2,7 @@ import { Response } from "express";
 
 import { PullRequest } from "../models/PullRequest.js";
 import { Repository } from "../models/Repository.js";
+import { triggerWebhooks } from "../services/webhook.dispatcher.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
 
 async function ownedRepository(repositoryId: string, userId?: string) {
@@ -35,6 +36,10 @@ export const createPullRequest = async (req: AuthRequest, res: Response): Promis
 
     repository.pullRequests += 1;
     await repository.save();
+    
+    await pullRequest.populate("creator", "name email");
+    triggerWebhooks(repository._id, "pull_request", pullRequest);
+
     res.status(201).json({ success: true, data: pullRequest });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
