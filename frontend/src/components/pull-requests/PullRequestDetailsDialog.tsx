@@ -5,16 +5,29 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import PullRequestStatusBadge from "./PullRequestStatusBadge";
 import ReviewPullRequestDialog from "./ReviewPullRequestDialog";
 import MergePullRequestDialog from "./MergePullRequestDialog";
+import { Sparkles } from "lucide-react";
 import { pullRequestService } from "@/services/pull-request.service";
+import { aiService } from "@/services/ai.service";
 import type { PullRequest, ReviewStatus } from "@/types/pull-request";
 
 export default function PullRequestDetailsDialog({ pullRequest, open, onOpenChange, onUpdated }: { pullRequest: PullRequest | null; open: boolean; onOpenChange: (open: boolean) => void; onUpdated: () => void }) {
-  const [reviewOpen, setReviewOpen] = useState(false); const [mergeOpen, setMergeOpen] = useState(false); const update = () => { onUpdated(); };
+  const [reviewOpen, setReviewOpen] = useState(false); const [mergeOpen, setMergeOpen] = useState(false); const [isReviewing, setIsReviewing] = useState(false); const update = () => { onUpdated(); };
   const review = useMutation({ mutationFn: ({ status, reviewComment }: { status: ReviewStatus; reviewComment: string }) => pullRequestService.review(pullRequest!._id, status, reviewComment), onSuccess: update });
+  const aiReview = async () => {
+    setIsReviewing(true);
+    try {
+      await aiService.generatePRReview(pullRequest!.repository, pullRequest!._id);
+      update();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsReviewing(false);
+    }
+  };
   const merge = useMutation({ mutationFn: () => pullRequestService.merge(pullRequest!._id), onSuccess: update });
   const close = useMutation({ mutationFn: () => pullRequestService.close(pullRequest!._id), onSuccess: update });
   const reopen = useMutation({ mutationFn: () => pullRequestService.reopen(pullRequest!._id), onSuccess: update });
   const remove = useMutation({ mutationFn: () => pullRequestService.delete(pullRequest!._id), onSuccess: () => { update(); onOpenChange(false); } });
   if (!pullRequest) return null;
-  return <><Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-2xl"><DialogHeader><DialogTitle className="flex items-center gap-2">{pullRequest.title}<PullRequestStatusBadge status={pullRequest.status} /><PullRequestStatusBadge status={pullRequest.mergeStatus} /></DialogTitle></DialogHeader><div className="space-y-4"><p className="whitespace-pre-wrap text-muted-foreground">{pullRequest.description || "No description provided."}</p><div className="grid grid-cols-2 gap-3 rounded-lg border p-4 text-sm"><span>Branches</span><strong>{pullRequest.sourceBranch} → {pullRequest.targetBranch}</strong><span>Changed files</span><strong>{pullRequest.changedFiles}</strong><span>Commits</span><strong>{pullRequest.commits}</strong><span>Created</span><strong>{new Date(pullRequest.createdAt).toLocaleString()}</strong></div><div className="space-y-2"><h3 className="font-semibold">Reviews</h3>{pullRequest.reviews.length ? pullRequest.reviews.map((item) => <p key={item._id} className="text-sm">{item.status}{item.comment ? `: ${item.comment}` : ""}</p>) : <p className="text-sm text-muted-foreground">No reviews yet.</p>}</div></div><DialogFooter>{pullRequest.status === "Open" ? <><Button variant="outline" onClick={() => setReviewOpen(true)}>Review</Button><Button disabled={pullRequest.mergeStatus !== "Approved" || merge.isPending} onClick={() => setMergeOpen(true)}>Merge</Button><Button variant="destructive" onClick={() => close.mutate()}>Close</Button></> : pullRequest.status === "Closed" ? <Button onClick={() => reopen.mutate()}>Reopen</Button> : null}<Button variant="destructive" onClick={() => { if (window.confirm("Delete this pull request?")) remove.mutate(); }}>Delete</Button></DialogFooter></DialogContent></Dialog><ReviewPullRequestDialog open={reviewOpen} onOpenChange={setReviewOpen} onSubmit={(status, reviewComment) => review.mutate({ status, reviewComment })} /><MergePullRequestDialog open={mergeOpen} onOpenChange={setMergeOpen} onMerge={() => merge.mutate()} /></>;
+  return <><Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-2xl"><DialogHeader><DialogTitle className="flex items-center gap-2">{pullRequest.title}<PullRequestStatusBadge status={pullRequest.status} /><PullRequestStatusBadge status={pullRequest.mergeStatus} /></DialogTitle></DialogHeader><div className="space-y-4"><p className="whitespace-pre-wrap text-muted-foreground">{pullRequest.description || "No description provided."}</p><div className="grid grid-cols-2 gap-3 rounded-lg border p-4 text-sm"><span>Branches</span><strong>{pullRequest.sourceBranch} → {pullRequest.targetBranch}</strong><span>Changed files</span><strong>{pullRequest.changedFiles}</strong><span>Commits</span><strong>{pullRequest.commits}</strong><span>Created</span><strong>{new Date(pullRequest.createdAt).toLocaleString()}</strong></div><div className="space-y-2"><h3 className="font-semibold">Reviews</h3>{pullRequest.reviews.length ? pullRequest.reviews.map((item) => <p key={item._id} className="text-sm">{item.status}{item.comment ? `: ${item.comment}` : ""}</p>) : <p className="text-sm text-muted-foreground">No reviews yet.</p>}</div></div><DialogFooter>{pullRequest.status === "Open" ? <><Button variant="outline" onClick={aiReview} disabled={isReviewing} className="mr-auto"><Sparkles className="mr-2 h-4 w-4 text-primary" />{isReviewing ? "Analyzing..." : "AI Review"}</Button><Button variant="outline" onClick={() => setReviewOpen(true)}>Review</Button><Button disabled={pullRequest.mergeStatus !== "Approved" || merge.isPending} onClick={() => setMergeOpen(true)}>Merge</Button><Button variant="destructive" onClick={() => close.mutate()}>Close</Button></> : pullRequest.status === "Closed" ? <Button onClick={() => reopen.mutate()}>Reopen</Button> : null}<Button variant="destructive" onClick={() => { if (window.confirm("Delete this pull request?")) remove.mutate(); }}>Delete</Button></DialogFooter></DialogContent></Dialog><ReviewPullRequestDialog open={reviewOpen} onOpenChange={setReviewOpen} onSubmit={(status, reviewComment) => review.mutate({ status, reviewComment })} /><MergePullRequestDialog open={mergeOpen} onOpenChange={setMergeOpen} onMerge={() => merge.mutate()} /></>;
 }

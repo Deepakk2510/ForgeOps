@@ -12,6 +12,7 @@ import collaboratorRoutes from "./routes/collaborator.routes.js";
 import invitationRoutes from "./routes/invitation.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/repositories", collaboratorRoutes);
 app.use("/api/repositories/:repositoryId/webhooks", webhookRoutes);
 app.use("/api/invitations", invitationRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/repositories/:repositoryId", aiRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

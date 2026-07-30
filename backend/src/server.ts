@@ -1,8 +1,9 @@
-import dotenv from "dotenv";
+import "dotenv/config";
+import dns from "dns";
+dns.setServers(["8.8.8.8", "8.8.4.4"]); // Force Google DNS to bypass mobile hotspot blocks
+
 import app from "./app.js";
 import { connectDB } from "./config/database.js";
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
