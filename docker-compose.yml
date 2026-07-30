@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: forgeops-backend
+    ports:
+      - "5000:5000"
+    environment:
+      # Inject necessary environment variables. The rest can be read from backend/.env if passed through, 
+      # or you can rely on the .env file being copied if not ignored (but we ignored it in .dockerignore).
+      # Actually, let's map the .env file directly into the container so it doesn't need to be rebuilt when env changes.
+      - NODE_ENV=production
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Provide the backend API URL for the frontend build
+        - VITE_API_URL=http://localhost:5000/api
+    container_name: forgeops-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
