@@ -7,6 +7,7 @@ import RepositoryHeader from "@/components/repositories/RepositoryHeader";
 import RepositoryInfo from "@/components/repositories/RepositoryInfo";
 import RepositoryAnalytics from "@/components/repositories/RepositoryAnalytics";
 import READMECard from "@/components/repositories/READMECard";
+import CodeExplorer from "@/components/repositories/CodeExplorer";
 
 import { repositoryService } from "@/services/repository.service";
 
@@ -75,9 +76,11 @@ export default function RepositoryDetailsPage() {
       {/* Repository Information */}
       <RepositoryInfo repository={repository} />
 
-      {/* README */}
+      {/* Code Explorer & README */}
       <div className="grid gap-8 xl:grid-cols-3">
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-2 space-y-8">
+          <CodeExplorer repositoryId={repository._id} />
+          
           <READMECard
             repositoryId={repository._id}
             readme={repository.readme}
