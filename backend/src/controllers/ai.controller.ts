@@ -84,3 +84,17 @@ export const generateCommitMessage = async (req: AuthRequest, res: Response): Pr
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const handleAIChat = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { message, history } = req.body;
+    if (!message) {
+      res.status(400).json({ success: false, message: "Message is required" });
+      return;
+    }
+    const result = await aiService.chat(req.userId as string, message, history || []);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

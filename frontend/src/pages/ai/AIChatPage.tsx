@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { Send, Bot, User, Code } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Send, Bot, User, Code, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { aiService } from "@/services/ai.service";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -19,25 +22,54 @@ export default function AIChatPage() {
     }
   ]);
   const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-    const userMessage: Message = { id: Date.now().toString(), role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-    setTimeout(() => {
+  const chatMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const history = messages.slice(1).map(m => ({ role: m.role, content: m.content }));
+      return await aiService.chat(message, history);
+    },
+    onSuccess: (data: any) => {
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: Date.now().toString(),
           role: "ai",
-          content: "I'm currently in demo mode. My AI brain is still booting up, but I'll be ready to help you analyze code, generate PR descriptions, and review commits very soon!",
+          content: data.data || data,
         },
       ]);
-    }, 1000);
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error("Failed to get response from AI");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "ai",
+          content: "Sorry, I ran into an error processing your request.",
+        },
+      ]);
+    }
+  });
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || chatMutation.isPending) return;
+
+    const userMessage: Message = { id: Date.now().toString(), role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    
+    chatMutation.mutate(input);
+    setInput("");
   };
 
   return (
@@ -64,12 +96,26 @@ export default function AIChatPage() {
                 <div className="mt-1 flex-shrink-0">
                   {msg.role === "user" ? <User size={18} /> : <Code size={18} />}
                 </div>
-                <div>
-                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {msg.content}
                 </div>
               </div>
             </div>
           ))}
+          {chatMutation.isPending && (
+            <div className="flex justify-start">
+              <div className="flex max-w-[80%] space-x-3 rounded-lg p-4 bg-muted">
+                <div className="mt-1 flex-shrink-0">
+                  <Bot size={18} />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">ForgeOps AI is thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </CardContent>
         
         <div className="p-4 border-t bg-background">
@@ -79,8 +125,9 @@ export default function AIChatPage() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask anything about your codebase..."
               className="flex-1"
+              disabled={chatMutation.isPending}
             />
-            <Button type="submit">
+            <Button type="submit" disabled={chatMutation.isPending || !input.trim()}>
               <Send className="h-4 w-4 mr-2" />
               Send
             </Button>

@@ -31,6 +31,7 @@ export const createRepository = async (
         repository: repository._id,
         name: defaultBranchName,
         isDefault: true,
+        createdBy: req.userId,
       });
 
       if (user && user.githubAccessToken) {
@@ -109,6 +110,7 @@ export const createRepository = async (
          repository: repository._id,
          name: "main",
          isDefault: true,
+         createdBy: req.userId,
        });
     }
 

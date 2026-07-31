@@ -132,5 +132,44 @@ export const aiService = {
     } catch (e) {
       return "chore: update files";
     }
+  },
+
+  /**
+   * Handle global AI Chat interactions with context of all repositories
+   */
+  async chat(userId: string, message: string, history: { role: string, content: string }[]): Promise<string> {
+    try {
+      const repos: any[] = await Repository.find({ owner: userId });
+      let systemPrompt = "You are ForgeOps AI, an expert developer assistant. The user owns the following repositories. Help them answer questions or review code based on this context.\n\n";
+      
+      for (const repo of repos) {
+        systemPrompt += `--- Repository: ${repo.name} ---\nDescription: ${repo.description || "N/A"}\n`;
+        const branch: any = await Branch.findOne({ repository: repo._id, isDefault: true });
+        if (branch) {
+          const codeContext = await this.getBranchCodeContext(repo._id.toString(), branch.name);
+          if (codeContext && codeContext !== "No files in this branch.") {
+            systemPrompt += `Codebase:\n${codeContext}\n\n`;
+          }
+        }
+      }
+
+      let conversation = systemPrompt + "\n\n--- Chat History ---\n";
+      if (history && history.length > 0) {
+        for (const msg of history) {
+          conversation += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n\n`;
+        }
+      }
+      conversation += `User: ${message}\nAssistant: `;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: conversation,
+      });
+
+      return response.text?.trim() || "I'm sorry, I couldn't process that request.";
+    } catch (error) {
+      console.error("AI Chat Error:", error);
+      return "I'm experiencing some technical difficulties. Please try again later.";
+    }
   }
 };
