@@ -14,13 +14,29 @@ interface Message {
 }
 
 export default function AIChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "ai",
-      content: "Hello! I am ForgeOps AI. How can I assist you with your repositories today?",
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = sessionStorage.getItem("forgeops_ai_chat");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse chat history");
+      }
     }
-  ]);
+    return [
+      {
+        id: "1",
+        role: "ai",
+        content: "Hello! I am ForgeOps AI. How can I assist you with your repositories today?",
+      }
+    ];
+  });
+
+  // Save to session storage whenever messages change
+  useEffect(() => {
+    sessionStorage.setItem("forgeops_ai_chat", JSON.stringify(messages));
+  }, [messages]);
+
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
