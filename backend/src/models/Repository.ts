@@ -102,6 +102,16 @@ Built with ❤️ using ForgeOps.
       trim: true,
     },
 
+    githubFullName: {
+      type: String,
+      trim: true,
+    },
+
+    isImported: {
+      type: Boolean,
+      default: false,
+    },
+
     forks: {
       type: Number,
       default: 0,

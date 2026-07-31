@@ -1,6 +1,8 @@
 import { Response } from "express";
 import { Repository } from "../models/Repository.js";
 import { User } from "../models/User.js";
+import { Branch } from "../models/Branch.js";
+import { RepositoryFile } from "../models/RepositoryFile.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
 import axios from "axios";
 
@@ -13,10 +15,102 @@ export const createRepository = async (
   res: Response
 ): Promise<void> => {
   try {
+    const isImported = !!req.body.githubFullName;
+    
     const repository: any = await Repository.create({
       ...req.body,
       owner: req.userId,
+      isImported
     });
+
+    if (isImported) {
+      const user: any = await User.findById(req.userId).select("+githubAccessToken");
+      const defaultBranchName = req.body.defaultBranch || "main";
+      
+      const branch = await Branch.create({
+        repository: repository._id,
+        name: defaultBranchName,
+        isDefault: true,
+      });
+
+      if (user && user.githubAccessToken) {
+        try {
+          const treeResponse = await axios.get(
+            `https://api.github.com/repos/${req.body.githubFullName}/git/trees/${defaultBranchName}?recursive=1`,
+            {
+              headers: {
+                Authorization: `Bearer ${user.githubAccessToken}`,
+                Accept: "application/vnd.github.v3+json",
+              },
+            }
+          );
+
+          const tree = treeResponse.data.tree;
+          const filesToInsert = [];
+          
+          for (const item of tree) {
+            const parts = item.path.split("/");
+            const name = parts.pop();
+            const parentPath = parts.length > 0 ? "/" + parts.join("/") : "/";
+            
+            filesToInsert.push({
+              repository: repository._id,
+              branch: branch._id,
+              parentPath,
+              name,
+              type: item.type === "tree" ? "folder" : "file",
+              size: item.size || 0,
+              path: item.path,
+              content: ""
+            });
+          }
+
+          const concurrencyLimit = 15;
+          const filesOnly = filesToInsert.filter(f => f.type === "file");
+          
+          for (let i = 0; i < filesOnly.length; i += concurrencyLimit) {
+            const chunk = filesOnly.slice(i, i + concurrencyLimit);
+            await Promise.all(chunk.map(async (fileInfo) => {
+              if (fileInfo.size > 1000000) return; // skip >1MB
+              const skipExtensions = [".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf", ".zip", ".tar", ".gz", ".mp4", ".mov", ".woff", ".woff2", ".ttf"];
+              if (skipExtensions.some(ext => fileInfo.name.endsWith(ext))) return;
+
+              try {
+                const rawUrl = `https://raw.githubusercontent.com/${req.body.githubFullName}/${defaultBranchName}/${encodeURI(fileInfo.path)}`;
+                const rawRes = await axios.get(rawUrl, {
+                  headers: { Authorization: `token ${user.githubAccessToken}` },
+                  responseType: "text",
+                  transformResponse: [(data) => data],
+                  timeout: 5000
+                });
+                
+                fileInfo.content = rawRes.data;
+              } catch (e) {
+                // Ignore individual file errors
+              }
+            }));
+          }
+
+          const finalFiles = filesToInsert.map(f => {
+            const { path, ...rest } = f;
+            return rest;
+          });
+          
+          if (finalFiles.length > 0) {
+            await RepositoryFile.insertMany(finalFiles);
+          }
+
+        } catch (githubError: any) {
+          console.error("Failed to deep import repository:", githubError.message);
+        }
+      }
+    } else {
+       await Branch.create({
+         repository: repository._id,
+         name: "main",
+         isDefault: true,
+       });
+    }
 
     res.status(201).json({
       success: true,
@@ -66,6 +160,8 @@ export const getGithubRepositories = async (
     const githubRepos = response.data.map((repo: any) => ({
       id: repo.id,
       name: repo.name,
+      full_name: repo.full_name,
+      default_branch: repo.default_branch,
       description: repo.description || "",
       language: repo.language || "Unknown",
       visibility: repo.private ? "Private" : "Public",

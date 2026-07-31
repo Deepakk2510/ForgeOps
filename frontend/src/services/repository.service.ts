@@ -14,6 +14,8 @@ interface SingleRepositoryResponse {
 export interface GithubRepository {
   id: number;
   name: string;
+  full_name: string;
+  default_branch: string;
   description: string;
   language: string;
   visibility: "Public" | "Private";
@@ -35,6 +37,9 @@ export interface RepositoryPayload {
   topics: string[];
   license: string;
   website: string;
+  
+  githubFullName?: string;
+  defaultBranch?: string;
 }
 
 export const repositoryService = {

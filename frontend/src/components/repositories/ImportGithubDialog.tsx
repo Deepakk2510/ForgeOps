@@ -51,6 +51,8 @@ export default function ImportGithubDialog() {
       topics: [],
       license: "MIT",
       website: repo.html_url,
+      githubFullName: repo.full_name,
+      defaultBranch: repo.default_branch,
     });
   };
 
@@ -116,7 +118,14 @@ export default function ImportGithubDialog() {
                     onClick={() => handleImport(repo)}
                     disabled={importMutation.isPending}
                   >
-                    Import
+                    {importMutation.isPending && importMutation.variables?.githubFullName === repo.full_name ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Importing...
+                      </span>
+                    ) : (
+                      "Import"
+                    )}
                   </Button>
                 </div>
               ))}
