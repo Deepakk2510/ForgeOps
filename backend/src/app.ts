@@ -43,6 +43,7 @@ app.use("/api/repositories/:repositoryId/webhooks", webhookRoutes);
 app.use("/api/invitations", invitationRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/repositories/:repositoryId", aiRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/", (_req, res) => {
   res.json({
