@@ -54,7 +54,7 @@ export const aiService = {
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
       
@@ -97,7 +97,7 @@ export const aiService = {
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
 
@@ -127,7 +127,7 @@ export const aiService = {
     try {
       const codeContext = await this.getBranchCodeContext(repositoryId, branchName);
       const prompt = `You are an expert developer. Generate a concise, conventional commit message based on this codebase context. Only return the commit message string, nothing else. Context:\n${codeContext}`;
-      const response = await ai.models.generateContent({ model: 'gemini-1.5-flash', contents: prompt });
+      const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
       return response.text?.trim() || "chore: update files";
     } catch (e) {
       return "chore: update files";
@@ -162,14 +162,14 @@ export const aiService = {
       conversation += `User: ${message}\nAssistant: `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         contents: conversation,
       });
 
       return response.text?.trim() || "I'm sorry, I couldn't process that request.";
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Chat Error:", error);
-      return "I'm experiencing some technical difficulties. Please try again later.";
+      return `I'm experiencing some technical difficulties. Error: ${error.message}`;
     }
   }
 };
